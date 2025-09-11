@@ -52,9 +52,14 @@ axiosInstance.interceptors.response.use(
       case 401:
         if (typeof window !== "undefined") {
           const refreshToken = localStorage.getItem("refreshToken");
-          if (refreshToken && !originalRequest.url?.includes("/auth/refresh-token")) {
+          if (
+            refreshToken &&
+            !originalRequest.url?.includes("/auth/refresh-token")
+          ) {
             try {
-              const res = await authRefreshToken({ refresh_token: refreshToken });
+              const res = await authRefreshToken({
+                refresh_token: refreshToken,
+              });
               localStorage.setItem("accessToken", res.access_token);
               // Retry request gốc
               return axiosInstance({

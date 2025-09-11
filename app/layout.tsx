@@ -16,6 +16,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi">
+      <head>
+        <link rel="icon" href="/car.png" />
+      </head>
       <body className="bg-gray-50">
         <Navbar />
         {children}
