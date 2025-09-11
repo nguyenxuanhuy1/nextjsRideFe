@@ -14,8 +14,8 @@ export default function XacThucPage() {
     if (accessToken && refreshToken) {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
-
-      router.replace("/"); // ví dụ về trang chủ
+      window.dispatchEvent(new Event("userLogin"));
+      router.replace("/"); 
     } else {
       console.error("Không nhận được token từ backend");
     }

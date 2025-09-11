@@ -1,48 +1,52 @@
 import { useEffect, useState } from "react";
-
-declare global {
-  interface Window {
-    google: any;
-  }
-}
+import axios from "axios";
 
 export function useCurrentLocation() {
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [address, setAddress] = useState<string>("");
 
   useEffect(() => {
+    const fallbackPosition: [number, number] = [21.03, 105.85];
+    const fallbackAddress = "Hà Nội, Việt Nam";
+
     if (!navigator.geolocation) {
-      setPosition([21.03, 105.85]);
-      setAddress("Hà Nội, Việt Nam");
+      setPosition(fallbackPosition);
+      setAddress(fallbackAddress);
       return;
     }
 
+    let canceled = false; // tránh setState khi component unmount
+
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
+        if (canceled) return;
+
         const { latitude, longitude } = pos.coords;
         setPosition([latitude, longitude]);
 
-        if (window.google && window.google.maps) {
-          const geocoder = new window.google.maps.Geocoder();
-          geocoder.geocode(
-            { location: { lat: latitude, lng: longitude } },
-            (results: any, status: any) => {
-              if (status === "OK" && results[0]) {
-                setAddress(results[0].formatted_address);
-              } else {
-                setAddress("Không tìm thấy địa chỉ");
-              }
-            }
+        try {
+          const res = await axios.get(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
           );
-        } else {
-          setAddress("Không thể kết nối Google Maps");
+
+          if (!canceled) setAddress(res.data.display_name || fallbackAddress);
+        } catch (err) {
+          console.error(err);
+          if (!canceled) setAddress(fallbackAddress);
         }
       },
-      () => {
-        setPosition([21.03, 105.85]);
-        setAddress("Hà Nội, Việt Nam");
+      (err) => {
+        console.error(err);
+        if (!canceled) {
+          setPosition(fallbackPosition);
+          setAddress(fallbackAddress);
+        }
       }
     );
+
+    return () => {
+      canceled = true;
+    };
   }, []);
 
   return { position, address };

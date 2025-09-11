@@ -6,6 +6,7 @@ import axios from "axios";
 import "leaflet/dist/leaflet.css";
 import { useNotify } from "@/hooks/useNotify";
 import { createTrip } from "@/api/apiUser";
+import { useCurrentLocation } from "@/hooks/useCurrentLocation";
 
 function useDebounce(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -55,32 +56,14 @@ export default function RoutePicker() {
   const [carSeats, setCarSeats] = useState(1);
   const [startTime, setStartTime] = useState<string>("");
 
-  const { notifyError, contextHolder } = useNotify();
+  const { notifyError, notifySuccess, contextHolder } = useNotify();
 
-  const [position, setPosition] = useState<[number, number] | undefined>(
-    undefined
-  );
+  const { position, address } = useCurrentLocation();
 
   const [L, setL] = useState<any>(null);
 
   useEffect(() => {
     import("leaflet").then((mod) => setL(mod));
-  }, []);
-
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude, longitude } = pos.coords;
-          setPosition([latitude, longitude]);
-        },
-        (err) => {
-          setPosition([21.03, 105.85]);
-        }
-      );
-    } else {
-      setPosition([21.03, 105.85]);
-    }
   }, []);
 
   const startIcon = useMemo(() => {
@@ -152,7 +135,11 @@ export default function RoutePicker() {
       notifyError("", "Bạn phải chọn điểm đi hợp lệ");
       return;
     }
-
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      notifyError("", "Vui lòng đăng nhập trước khi tạo chuyến đi");
+      return;
+    }
     const payload = {
       startLat: start[0],
       startLng: start[1],
@@ -167,7 +154,7 @@ export default function RoutePicker() {
     try {
       const res = await createTrip(payload);
       if (res.status === 200) {
-        notifyError("", `${res?.data}`);
+        notifySuccess("", `${res?.data}`);
       }
     } catch (err: any) {
       notifyError("", "Vui lòng thử lại sau");
@@ -215,23 +202,17 @@ export default function RoutePicker() {
           <button
             type="button"
             onClick={() => {
-              if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                  (pos) => {
-                    const { latitude, longitude } = pos.coords;
-                    setStart([latitude, longitude]);
-                    setStartInput("Vị trí hiện tại");
-                    setStartAddress("Vị trí hiện tại của bạn");
-                  },
-                  (err) => {
-                    notifyError("", "Chưa được cấp quyền truy cập vị trí");
-                  }
-                );
+              if (position && address) {
+                setStart(position);
+                setStartInput(address);
+                setStartAddress(address);
               } else {
-                alert("Trình duyệt không hỗ trợ định vị!");
+                notifyError(
+                  "",
+                  "Chưa thể lấy vị trí hiện tại. Vui lòng thử lại hoặc cấp quyền định vị"
+                );
               }
             }}
-            className="px-3 py-2   text-white rounded transition"
           >
             📍
           </button>

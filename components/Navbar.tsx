@@ -1,16 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Car, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+
   const [userName, setUserName] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
   const navItems = [
     { href: "/", label: "Trang chủ" },
     { href: "/search-trip", label: "Tìm chuyến" },
@@ -23,11 +25,47 @@ export default function Navbar() {
     { id: 2, name: "Chuyến đi Sài Gòn - Nha Trang" },
   ];
 
-  useEffect(() => {
+  // Kiểm tra login
+  const checkLogin = () => {
     const token = localStorage.getItem("accessToken");
     const name = localStorage.getItem("refreshToken");
-    if (token && name) setUserName(name);
+    setUserName(token && name ? name : null);
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    checkLogin();
+
+    // Lắng nghe event khi login xong
+    const handleUserLogin = () => checkLogin();
+    window.addEventListener("userLogin", handleUserLogin);
+
+    return () => window.removeEventListener("userLogin", handleUserLogin);
   }, []);
+
+  const handleLogin = () => {
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    setUserName(null);
+  };
+
+  // Skeleton khi chưa mount
+  if (!mounted) {
+    return (
+      <nav className="bg-white shadow-sm h-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center h-full">
+          <div className="flex items-center space-x-2">
+            <Car className="text-emerald-500 h-8 w-8 animate-pulse" />
+            <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav className="bg-white shadow-sm">
@@ -35,7 +73,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
           <div
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-2 cursor-pointer"
             onClick={() => router.push("/")}
           >
             <Car className="text-emerald-500 h-8 w-8" />
@@ -64,7 +102,7 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* Right side: user / login / mobile menu */}
+          {/* Right side */}
           <div className="flex items-center space-x-4">
             {userName ? (
               <>
@@ -74,7 +112,6 @@ export default function Navbar() {
                     onClick={() => setMenuOpen(!menuOpen)}
                     className="flex items-center space-x-2 font-medium text-gray-700 hover:text-emerald-600"
                   >
-                    {/* <span className="truncate">{userName}</span>{" "} */}
                     <Menu className="h-7 w-7" />
                   </button>
 
@@ -101,18 +138,19 @@ export default function Navbar() {
                         </ul>
                       </div>
                       <div className="p-4">
-                        <span className="font-semibold">Thông báo:</span>
-                        <ul className="mt-2 space-y-1">
-                          <li className="text-gray-600 hover:text-emerald-600">
-                            Bạn có 2 chuyến sắp tới
-                          </li>
-                        </ul>
+                        <span
+                          className="font-semibold cursor-pointer text-red-500 hover:text-red-600"
+                          onClick={handleLogout}
+                        >
+                          Đăng xuất
+                        </span>
                       </div>
                     </div>
                   )}
                 </div>
 
-                <div className="sm:hidden ">
+                {/* Mobile menu button */}
+                <div className="sm:hidden">
                   <button onClick={() => setMenuOpen(!menuOpen)}>
                     {menuOpen ? (
                       <X className="h-6 w-6" />
@@ -124,10 +162,7 @@ export default function Navbar() {
               </>
             ) : (
               <button
-                onClick={() =>
-                  (window.location.href =
-                    "http://localhost:8080/oauth2/authorization/google")
-                }
+                onClick={handleLogin}
                 className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-md font-medium transition duration-300"
               >
                 Đăng nhập
@@ -149,25 +184,17 @@ export default function Navbar() {
               </Link>
             ))}
 
-            {/* Nếu đăng nhập, show thêm thông tin user + trips */}
             {userName && (
               <div className="px-4 py-2 border-t">
                 <span className="font-semibold truncate max-w-[350px] overflow-hidden whitespace-nowrap block">
                   Xin chào, {userName}
                 </span>
-                <span className="block mt-2 font-semibold">
-                  Các chuyến đã tạo:
+                <span
+                  className="block mt-2 font-semibold cursor-pointer text-red-500 hover:text-red-600"
+                  onClick={handleLogout}
+                >
+                  Đăng xuất
                 </span>
-                <ul className="mt-1 space-y-1">
-                  {trips.map((trip) => (
-                    <li
-                      key={trip.id}
-                      className="text-gray-600 hover:text-emerald-600"
-                    >
-                      {trip.name}
-                    </li>
-                  ))}
-                </ul>
               </div>
             )}
           </div>
