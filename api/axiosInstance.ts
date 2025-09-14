@@ -29,11 +29,11 @@ axiosInstance.interceptors.response.use(
     // Nếu không có response (lỗi mạng)
     if (!error.response) {
       if (typeof window !== "undefined") {
-        notification.error({
-          message: "Lỗi mạng",
-          description: "Vui lòng thử lại.",
-          placement: "topRight",
-        });
+        // notification.error({
+        //   message: "Lỗi mạng",
+        //   description: "Vui lòng thử lại.",
+        //   placement: "topRight",
+        // });
       }
       return Promise.reject(error);
     }

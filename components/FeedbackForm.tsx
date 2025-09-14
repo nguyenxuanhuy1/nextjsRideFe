@@ -23,19 +23,13 @@ export default function FeedbackForm() {
         alt="Xe trái"
         className="absolute -top-8 -left-8 h-28 w-28 z-20"
       />
-      {/* Xe phải */}
-      <img
-        src="/carcontainer.png"
-        alt="Xe phải"
-        className="absolute -top-8 -right-8 h-28 w-28 z-20"
-      />
 
       <form
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded-2xl shadow-md flex flex-col gap-4 relative z-10"
       >
         <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-          Gửi ý kiến của bạn hoặc phàn nàn
+          Gửi ý kiến của bạn hoặc đánh giá số sao!
         </h1>
 
         {/* Star rating */}
@@ -57,7 +51,7 @@ export default function FeedbackForm() {
         </div>
 
         <textarea
-          placeholder="Nhập nội dung phàn nàn..."
+          placeholder="Nhập nội dung đánh giá..."
           className="w-full p-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
           value={feedback}
           onChange={(e) => setFeedback(e.target.value)}
