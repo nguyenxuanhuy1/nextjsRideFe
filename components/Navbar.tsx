@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Car, Menu, X } from "lucide-react";
+import { Bell, Car, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const [userName, setUserName] = useState<string | null>(null);
+  const [userInfo, setUserInfo] = useState<any | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -20,26 +20,42 @@ export default function Navbar() {
     { href: "/feedback", label: "Gửi phàn nàn" },
   ];
 
-  const trips = [
-    { id: 1, name: "Chuyến đi Hà Nội - Đà Nẵng" },
-    { id: 2, name: "Chuyến đi Sài Gòn - Nha Trang" },
-  ];
-
   // Kiểm tra login
   const checkLogin = () => {
     const token = localStorage.getItem("accessToken");
-    const name = localStorage.getItem("refreshToken");
-    setUserName(token && name ? name : null);
-  };
+    const userInfoString = localStorage.getItem("userInfo");
 
+    if (token && userInfoString) {
+      try {
+        const parsed = JSON.parse(userInfoString);
+        setUserInfo(parsed); // 👈 lưu nguyên object
+      } catch (err) {
+        console.error("Lỗi parse userInfo:", err);
+        setUserInfo(null);
+      }
+    } else {
+      setUserInfo(null);
+    }
+  };
   useEffect(() => {
     setMounted(true);
     checkLogin();
 
     // Lắng nghe event khi login xong
-    const handleUserLogin = () => checkLogin();
-    window.addEventListener("userLogin", handleUserLogin);
+    const handleUserLogin = () => {
+      const userInfoString = localStorage.getItem("userInfo");
+      if (userInfoString) {
+        try {
+          const parsed = JSON.parse(userInfoString);
+          setUserInfo(parsed);
+        } catch (err) {
+          console.error("Lỗi parse userInfo:", err);
+          setUserInfo(null);
+        }
+      }
+    };
 
+    window.addEventListener("userLogin", handleUserLogin);
     return () => window.removeEventListener("userLogin", handleUserLogin);
   }, []);
 
@@ -48,9 +64,8 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    setUserName(null);
+    localStorage.clear();
+    router.replace("/");
   };
 
   // Skeleton khi chưa mount
@@ -104,39 +119,32 @@ export default function Navbar() {
 
           {/* Right side */}
           <div className="flex items-center space-x-4">
-            {userName ? (
+            <div className="relative cursor-pointer">
+              <Bell className="h-6 w-6 text-gray-600 hover:text-emerald-600" />
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                5
+              </span>
+            </div>
+
+            {userInfo?.name ? (
               <>
                 {/* Desktop dropdown */}
                 <div className="hidden sm:block relative">
-                  <button
-                    onClick={() => setMenuOpen(!menuOpen)}
-                    className="flex items-center space-x-2 font-medium text-gray-700 hover:text-emerald-600"
-                  >
-                    <Menu className="h-7 w-7" />
-                  </button>
+                  <div className="hidden sm:block relative group">
+                    {/* Avatar + Tên */}
+                    <div className="flex items-center gap-2 cursor-pointer">
+                      <img
+                        src={userInfo.avatarUrl}
+                        alt={userInfo.name}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                      <span className="font-medium text-gray-700 hover:text-emerald-600">
+                        {userInfo.name}
+                      </span>
+                    </div>
 
-                  {menuOpen && (
-                    <div className="absolute right-0 mt-2 w-64 bg-white border rounded-md shadow-lg z-[401]">
-                      <div className="p-4 border-b">
-                        <span className="font-semibold truncate max-w-[250px] overflow-hidden whitespace-nowrap block">
-                          Xin chào, {userName}
-                        </span>
-                      </div>
-                      <div className="p-4 border-b">
-                        <span className="font-semibold">
-                          Các chuyến đã tạo:
-                        </span>
-                        <ul className="mt-2 space-y-1">
-                          {trips.map((trip) => (
-                            <li
-                              key={trip.id}
-                              className="text-gray-600 hover:text-emerald-600"
-                            >
-                              {trip.name}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                    {/* Dropdown khi hover */}
+                    <div className="absolute right-0 mt-2 w-64 bg-white border rounded-md shadow-lg z-[401] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                       <div className="p-4">
                         <span
                           className="font-semibold cursor-pointer text-red-500 hover:text-red-600"
@@ -146,16 +154,16 @@ export default function Navbar() {
                         </span>
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
 
                 {/* Mobile menu button */}
                 <div className="sm:hidden">
                   <button onClick={() => setMenuOpen(!menuOpen)}>
                     {menuOpen ? (
-                      <X className="h-6 w-6" />
+                      <X className="h-6 w-6 text-emerald-600" />
                     ) : (
-                      <Menu className="h-6 w-6" />
+                      <Menu className="h-6 w-6 text-emerald-600" />
                     )}
                   </button>
                 </div>
@@ -179,22 +187,36 @@ export default function Navbar() {
                 key={item.href}
                 href={item.href}
                 className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
+                onClick={() => setMenuOpen(false)}
               >
                 {item.label}
               </Link>
             ))}
 
-            {userName && (
+            {userInfo?.name && (
               <div className="px-4 py-2 border-t">
-                <span className="font-semibold truncate max-w-[350px] overflow-hidden whitespace-nowrap block">
-                  Xin chào, {userName}
-                </span>
-                <span
-                  className="block mt-2 font-semibold cursor-pointer text-red-500 hover:text-red-600"
-                  onClick={handleLogout}
-                >
-                  Đăng xuất
-                </span>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={userInfo.avatarUrl}
+                      alt={userInfo.name}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <span className="font-semibold truncate max-w-[150px] overflow-hidden whitespace-nowrap block">
+                      {userInfo?.name}
+                    </span>
+                  </div>
+
+                  <span
+                    className="font-semibold cursor-pointer text-red-500 hover:text-red-600"
+                    onClick={() => {
+                      handleLogout();
+                      setMenuOpen(false);
+                    }}
+                  >
+                    Đăng xuất
+                  </span>
+                </div>
               </div>
             )}
           </div>

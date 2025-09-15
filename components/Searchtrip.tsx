@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, Tag, Button, Tooltip } from "antd";
+import { Table, Tag, Button, Tooltip, Pagination } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { useCallback, useEffect, useState } from "react";
 import { searchTrip } from "@/api/apiUser";
@@ -30,6 +30,9 @@ export default function SearchTripPage() {
   const [start, setStart] = useState<[number, number] | null>(null);
   const [end, setEnd] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
   const router = useRouter();
   const statusMap: Record<Trip["status"], { text: string; color: string }> = {
     0: { text: "Mới tạo", color: "#3b82f6" },
@@ -74,7 +77,7 @@ export default function SearchTripPage() {
     }
   };
 
-  const handleSearch = async () => {
+  const handleSearch = async (pageNum = page, sizeNum = pageSize) => {
     // if (!start || !end) return;
     const payload: {
       startLat: number | null;
@@ -88,14 +91,15 @@ export default function SearchTripPage() {
       startLng: start?.[1] ?? null,
       endLat: end?.[0] ?? null,
       endLng: end?.[1] ?? null,
-      page: 0,
-      size: 10,
+      page: pageNum - 1,
+      size: sizeNum,
     };
     try {
       setLoading(true);
       const res = await searchTrip(payload);
       if (res.status === 200) {
         setTrips(res.data.data);
+        setTotal(res.data.total);
       }
     } catch (err) {
       console.error("Search failed", err);
@@ -105,7 +109,7 @@ export default function SearchTripPage() {
   };
   useEffect(() => {
     handleSearch();
-  }, []);
+  }, [page, pageSize]);
 
   const columns: ColumnsType<Trip> = [
     {
@@ -239,7 +243,7 @@ export default function SearchTripPage() {
         </div>
 
         <button
-          onClick={handleSearch}
+          onClick={() => handleSearch(1, pageSize)}
           className="w-full py-2 bg-emerald-500 text-white rounded"
         >
           Tìm kiếm
@@ -252,6 +256,16 @@ export default function SearchTripPage() {
           columns={columns}
           dataSource={trips}
           rowKey="id"
+          pagination={{
+            current: page,
+            pageSize,
+            total,
+            showSizeChanger: true,
+            onChange: (p, size) => {
+              setPage(p);
+              setPageSize(size || 10);
+            },
+          }}
           scroll={{ x: 800 }}
         />
       </div>
@@ -264,9 +278,15 @@ export default function SearchTripPage() {
           return (
             <div
               key={trip.id}
-              className="border rounded-lg p-4 shadow-sm bg-white"
+              className="border rounded-lg p-4 shadow-sm bg-white relative"
             >
-              <p className="font-semibold truncate">
+              {/* Border top + chữ chèn */}
+              <div className="absolute -top-3 left-4 bg-white px-2 text-sm font-bold text-emerald-600">
+                Chuyến đi
+              </div>
+
+              {/* Nội dung chuyến */}
+              <p className="font-semibold truncate mt-2">
                 {trip.startAddress} → {trip.endAddress}
               </p>
               <p className="text-sm text-gray-600">
@@ -276,7 +296,10 @@ export default function SearchTripPage() {
                 Số ghế trống: {trip.capacity}
               </p>
               <p className="text-sm text-gray-600">
-                Quãng đường ước tính: {trip.distance} m
+                Quãng đường ước tính:{" "}
+                {trip.distance >= 1000
+                  ? `${(trip.distance / 1000).toFixed(1)} km`
+                  : `${trip.distance} m`}
               </p>
               <p className="text-sm text-gray-600">
                 Trạng thái:
@@ -287,17 +310,18 @@ export default function SearchTripPage() {
                   {info.text}
                 </span>
               </p>
+
               <Button
                 type="link"
                 icon={<Eye className="w-4 h-4 text-emerald-500" />}
                 className="mt-2 p-0 text-emerald-500"
-                onClick={() => alert(`Chi tiết chuyến ${trip.id}`)}
+                onClick={() => router.push(`/detail-trip/${trip.id}`)}
               >
                 Xem chi tiết
               </Button>
               <Button
                 type="link"
-                className="mt-2 p-0 text-emerald-500"
+                className="mt-2 p-0 text-emerald-500 flex items-center gap-1"
                 onClick={() => alert(`Chi tiết chuyến ${trip.id}`)}
               >
                 <Car className="w-5 h-5" />
@@ -306,6 +330,15 @@ export default function SearchTripPage() {
             </div>
           );
         })}
+        <div className="mt-4 flex justify-center">
+          <Pagination
+            current={page}
+            pageSize={pageSize}
+            total={total}
+            showSizeChanger={false}
+            onChange={(p) => setPage(p)}
+          />
+        </div>
       </div>
     </div>
   );

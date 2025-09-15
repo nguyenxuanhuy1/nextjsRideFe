@@ -164,7 +164,7 @@ export default function RoutePicker() {
   return (
     <div className="flex flex-col md:flex-row h-screen">
       {contextHolder}
-      <div className="md:w-80 w-full p-4 md:p-6 md:pb-6 pb-4 bg-gray-50">
+      <div className="md:w-80 w-full md:p-6 md:pb-6 pb-4 bg-gray-50">
         <h3 className="text-lg font-semibold mb-4">
           Chọn Điểm xuất phát / Điểm đến
         </h3>

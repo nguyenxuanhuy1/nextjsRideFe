@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, Button, Spin } from "antd";
-import { Car } from "lucide-react";
+import { Spin } from "antd";
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 import { getTripDetail } from "@/api/apiUser";
+import Loading from "./Loading";
 
 // Dynamic import các component react-leaflet
 const MapContainer = dynamic(
@@ -79,7 +79,7 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
     }
   };
 
-  if (loading) return <Spin className="mt-10" />;
+  if (loading) return <Loading />;
 
   if (!trip) return <p className="text-center mt-10">Không tìm thấy chuyến</p>;
 
@@ -111,11 +111,15 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
     return null;
   };
 
-  if (!L) return <p className="text-center mt-10">Đang load bản đồ...</p>;
+  if (!L)
+    return (
+      <p className="text-center mt-10">
+        <Loading />
+      </p>
+    );
 
   return (
-    <div className=" mx-auto p-2 space-y-3">
-      {/* <Card> */}
+    <div className=" mx-auto space-y-3">
       <p>
         <strong>Điểm đi:</strong> {trip.startAddress}
       </p>
@@ -123,10 +127,26 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
         <strong>Điểm đến:</strong> {trip.endAddress}
       </p>
       <p>
-        <strong>Khoảng cách:</strong> {trip.distance} m
+        <strong>Khoảng cách:</strong>{" "}
+        {trip.distance >= 1000
+          ? `${(trip.distance / 1000).toFixed(1)} km`
+          : `${trip.distance} m`}
       </p>
+
       <p>
-        <strong>Thời gian:</strong> {trip.duration} giây
+        <strong>Thời gian ước tính:</strong>{" "}
+        {(() => {
+          // duration đang là giây → nhân 2
+          const adjusted = trip.duration * 3;
+
+          if (adjusted < 3600) {
+            return `${Math.round(adjusted / 60)} phút`;
+          } else {
+            const hours = Math.floor(adjusted / 3600);
+            const minutes = Math.round((adjusted % 3600) / 60);
+            return `${hours} giờ ${minutes} phút`;
+          }
+        })()}
       </p>
 
       <button

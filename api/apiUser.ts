@@ -16,3 +16,7 @@ export const getTripDetail = async (id: number) => {
   const res = await axiosInstance.get(`/api/routes/${id}`);
   return res;
 };
+export const getUserInfor = async () => {
+  const res = await axiosInstance.get(`/api/user/info`);
+  return res;
+};
