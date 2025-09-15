@@ -1,19 +1,24 @@
 "use client";
 
-import { Table, Tag, Button } from "antd";
+import { Table, Tag, Button, Tooltip } from "antd";
 import { ColumnsType } from "antd/es/table";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { searchTrip } from "@/api/apiUser";
 import axios from "axios";
 import debounce from "lodash.debounce";
+import Loading from "./Loading";
+import { Car, Eye } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Trip {
   id: number;
-  from: string;
-  to: string;
-  date: string;
-  seats: number;
-  status: "Đang chờ" | "Đã khởi hành" | "Hoàn thành";
+  startAddress: string;
+  endAddress: string;
+  distance: number;
+  duration: number;
+  capacity: number;
+  status: 0 | 1 | 2 | 3 | 4;
+  startTime: string;
 }
 
 export default function SearchTripPage() {
@@ -24,8 +29,15 @@ export default function SearchTripPage() {
   const [endSuggestions, setEndSuggestions] = useState<any[]>([]);
   const [start, setStart] = useState<[number, number] | null>(null);
   const [end, setEnd] = useState<[number, number] | null>(null);
-  const [startTime, setStartTime] = useState("");
-
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const statusMap: Record<Trip["status"], { text: string; color: string }> = {
+    0: { text: "Mới tạo", color: "#3b82f6" },
+    1: { text: "Đang mở", color: "#22c55e" },
+    2: { text: "Đầy chỗ", color: "#ef4444" },
+    3: { text: "Đang di chuyển", color: "#eab308" },
+    4: { text: "Hoàn thành", color: "#6b7280" },
+  };
   // fetch gợi ý địa chỉ
   const fetchSuggestions = useCallback(
     debounce(async (query: string, type: "start" | "end") => {
@@ -63,65 +75,111 @@ export default function SearchTripPage() {
   };
 
   const handleSearch = async () => {
-    if (!start || !end) return;
-    const payload = {
-      startLat: start[0],
-      startLng: start[1],
-      endLat: end[0],
-      endLng: end[1],
-      startTime: startTime || null,
+    // if (!start || !end) return;
+    const payload: {
+      startLat: number | null;
+      startLng: number | null;
+      endLat: number | null;
+      endLng: number | null;
+      page: number;
+      size: number;
+    } = {
+      startLat: start?.[0] ?? null,
+      startLng: start?.[1] ?? null,
+      endLat: end?.[0] ?? null,
+      endLng: end?.[1] ?? null,
+      page: 0,
+      size: 10,
     };
     try {
+      setLoading(true);
       const res = await searchTrip(payload);
       if (res.status === 200) {
-        setTrips(res.data); // backend trả list
+        setTrips(res.data.data);
       }
     } catch (err) {
       console.error("Search failed", err);
+    } finally {
+      setLoading(false);
     }
   };
+  useEffect(() => {
+    handleSearch();
+  }, []);
 
   const columns: ColumnsType<Trip> = [
-    { title: "Từ", dataIndex: "from", key: "from" },
-    { title: "Đến", dataIndex: "to", key: "to" },
-    { title: "Thời gian khởi hành", dataIndex: "date", key: "date" },
-    { title: "Số ghế trống", dataIndex: "seats", key: "seats" },
+    {
+      title: "Hành trình",
+      key: "route",
+      render: (_: any, record: Trip) => (
+        <Tooltip title={`${record.startAddress} → ${record.endAddress}`}>
+          <div className="flex items-center gap-1 max-w-[380px]">
+            {/* Điểm đi */}
+            <span className="inline-block max-w-[190px] truncate">
+              {record.startAddress}
+            </span>
+
+            <span className="mx-1">→</span>
+
+            {/* Điểm đến */}
+            <span className="inline-block max-w-[190px] truncate">
+              {record.endAddress}
+            </span>
+          </div>
+        </Tooltip>
+      ),
+    },
+    { title: "Số ghế trống", dataIndex: "capacity", key: "capacity" },
+    { title: "Quãng đường", dataIndex: "distance", key: "distance" },
+    { title: "Thời gian khởi hành", dataIndex: "startTime", key: "startTime" },
     {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      render: (status) => {
-        let color = "blue";
-        switch (status) {
-          case "Đang chờ":
-            color = "gold";
-            break;
-          case "Đã khởi hành":
-            color = "green";
-            break;
-          case "Hoàn thành":
-            color = "gray";
-            break;
-        }
-        return <Tag color={color}>{status}</Tag>;
+      render: (status: Trip["status"]) => {
+        const info = statusMap[status];
+        return <Tag color={info.color}>{info.text}</Tag>;
       },
     },
+
     {
-      title: "Hành động",
+      title: "Bạn muốn",
       key: "action",
+      align: "center",
+      width: 200,
       render: (_, record) => (
-        <Button
-          type="link"
-          onClick={() => alert(`Xin đi nhờ chuyến ${record.id}`)}
-        >
-          Xin đi nhờ
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            type="link"
+            className="flex items-center gap-1 text-blue-500"
+            onClick={() => router.push(`/detail-trip/${record.id}`)}
+          >
+            <Eye className="w-4 h-4" />
+            Xem chi tiết
+          </Button>
+
+          <Button
+            type="link"
+            className="flex items-center gap-1 text-emerald-500"
+            onClick={() => alert(`Xin đi nhờ chuyến ${record.id}`)}
+          >
+            <Car className="w-4 h-4" />
+            Xin đi nhờ
+          </Button>
+        </div>
       ),
     },
   ];
-
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[60vh]">
+        <Loading />
+      </div>
+    );
+  }
   return (
     <div className="p-4">
+      {loading && <Loading />}
       <h1 className="text-xl font-bold mb-4">Tìm kiếm chuyến đi</h1>
 
       {/* Form tìm kiếm */}
@@ -140,7 +198,7 @@ export default function SearchTripPage() {
           />
           {startSuggestions.length > 0 && (
             <div className="absolute bg-white border w-full max-h-40 overflow-auto z-10">
-              {startSuggestions.map((s) => (
+              {startSuggestions?.map((s) => (
                 <div
                   key={s.place_id}
                   className="p-2 hover:bg-gray-100 cursor-pointer"
@@ -167,7 +225,7 @@ export default function SearchTripPage() {
           />
           {endSuggestions.length > 0 && (
             <div className="absolute bg-white border w-full max-h-40 overflow-auto z-10">
-              {endSuggestions.map((s) => (
+              {endSuggestions?.map((s) => (
                 <div
                   key={s.place_id}
                   className="p-2 hover:bg-gray-100 cursor-pointer"
@@ -179,14 +237,6 @@ export default function SearchTripPage() {
             </div>
           )}
         </div>
-
-        {/* Thời gian khởi hành */}
-        <input
-          type="datetime-local"
-          value={startTime}
-          onChange={(e) => setStartTime(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded"
-        />
 
         <button
           onClick={handleSearch}
@@ -208,40 +258,54 @@ export default function SearchTripPage() {
 
       {/* Mobile Card view */}
       <div className="sm:hidden space-y-4">
-        {trips.map((trip) => (
-          <div
-            key={trip.id}
-            className="border rounded-lg p-4 shadow-sm bg-white"
-          >
-            <p className="font-semibold truncate">
-              {trip.from} → {trip.to}
-            </p>
-            <p className="text-sm text-gray-600">Ngày đi: {trip.date}</p>
-            <p className="text-sm text-gray-600">Số ghế trống: {trip.seats}</p>
-            <p className="text-sm text-gray-600">
-              Trạng thái:
-              <span
-                className={`ml-1 px-2 py-0.5 rounded-full text-white text-xs 
-                ${
-                  trip.status === "Đang chờ"
-                    ? "bg-yellow-400"
-                    : trip.status === "Đã khởi hành"
-                    ? "bg-green-500"
-                    : "bg-gray-500"
-                }`}
-              >
-                {trip.status}
-              </span>
-            </p>
-            <Button
-              type="link"
-              className="mt-2 p-0 text-emerald-500"
-              onClick={() => alert(`Chi tiết chuyến ${trip.id}`)}
+        {trips?.map((trip) => {
+          const info = statusMap[trip.status];
+
+          return (
+            <div
+              key={trip.id}
+              className="border rounded-lg p-4 shadow-sm bg-white"
             >
-              Xin đi nhờ
-            </Button>
-          </div>
-        ))}
+              <p className="font-semibold truncate">
+                {trip.startAddress} → {trip.endAddress}
+              </p>
+              <p className="text-sm text-gray-600">
+                Ngày đi - giờ đi: {new Date(trip.startTime).toLocaleString()}
+              </p>
+              <p className="text-sm text-gray-600">
+                Số ghế trống: {trip.capacity}
+              </p>
+              <p className="text-sm text-gray-600">
+                Quãng đường ước tính: {trip.distance} m
+              </p>
+              <p className="text-sm text-gray-600">
+                Trạng thái:
+                <span
+                  style={{ backgroundColor: info.color }}
+                  className="ml-1 px-2 py-0.5 rounded-full text-white text-xs"
+                >
+                  {info.text}
+                </span>
+              </p>
+              <Button
+                type="link"
+                icon={<Eye className="w-4 h-4 text-emerald-500" />}
+                className="mt-2 p-0 text-emerald-500"
+                onClick={() => alert(`Chi tiết chuyến ${trip.id}`)}
+              >
+                Xem chi tiết
+              </Button>
+              <Button
+                type="link"
+                className="mt-2 p-0 text-emerald-500"
+                onClick={() => alert(`Chi tiết chuyến ${trip.id}`)}
+              >
+                <Car className="w-5 h-5" />
+                Xin đi nhờ
+              </Button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -1,0 +1,17 @@
+// src/components/Loading.tsx
+"use client";
+import Image from "next/image";
+
+export default function Loading() {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-white/80 z-50">
+      <Image
+        src="/Loading_car.gif"
+        alt="Loading..."
+        width={200}
+        height={100}
+        priority
+      />
+    </div>
+  );
+}

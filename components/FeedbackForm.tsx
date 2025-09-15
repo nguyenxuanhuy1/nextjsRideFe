@@ -2,21 +2,44 @@
 
 import { useState } from "react";
 import { Star } from "lucide-react";
+import { feedBack } from "@/api/apiUser";
+import Loading from "@/components/Loading";
+import { useNotify } from "@/hooks/useNotify";
 
 export default function FeedbackForm() {
   const [feedback, setFeedback] = useState("");
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+  const { notifySuccess, contextHolder } = useNotify();
+  const handleSubmit = async (e: React.FormEvent) => {
+    debugger;
     e.preventDefault();
-    alert(`Cảm ơn bạn đã gửi phản hồi!\nSao: ${rating}\nNội dung: ${feedback}`);
-    setFeedback("");
-    setRating(0);
+    setLoading(true);
+
+    try {
+      const body = {
+        rating,
+        comment: feedback,
+      };
+
+      const res = await feedBack(body);
+      if (res.status === 200) {
+        notifySuccess("", res.data);
+        setFeedback("");
+        setRating(5);
+      }
+    } catch (error) {
+      notifySuccess("", "Tạm thời có lỗi hãy quay lại sau");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="relative w-full max-w-md mx-auto">
+      {contextHolder}
+      {loading && <Loading />}
       {/* Xe trái */}
       <img
         src="/car.png"
