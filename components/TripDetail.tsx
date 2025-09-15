@@ -114,7 +114,7 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
   if (!L) return <p className="text-center mt-10">Đang load bản đồ...</p>;
 
   return (
-    <div className="max-w-5xl mx-auto p-2 space-y-3">
+    <div className=" mx-auto p-2 space-y-3">
       {/* <Card> */}
       <p>
         <strong>Điểm đi:</strong> {trip.startAddress}
@@ -128,17 +128,15 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
       <p>
         <strong>Thời gian:</strong> {trip.duration} giây
       </p>
-      <Button
-        type="primary"
-        className="mt-2"
-        icon={<Car />}
+
+      <button
         onClick={() => alert(`Xin đi nhờ chuyến ${trip.id}`)}
+        className="w-full py-2 mt-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition"
       >
         Xin đi nhờ
-      </Button>
-      {/* </Card> */}
+      </button>
 
-      <div className="h-[400px] w-full">
+      <div className="h-[500px] w-full">
         <MapContainer
           center={start}
           zoom={13}
