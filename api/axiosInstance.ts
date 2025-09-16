@@ -1,6 +1,6 @@
 // /utils/axiosInstance.ts
 import axios from "axios";
-import { notification } from "antd";
+import { message, notification } from "antd";
 import { authRefreshToken } from "@/api/auth";
 
 // Tạo axios instance với baseURL động (Next.js)
@@ -54,17 +54,21 @@ axiosInstance.interceptors.response.use(
           const refreshToken = localStorage.getItem("refreshToken");
           if (
             refreshToken &&
-            !originalRequest.url?.includes("/auth/refresh-token")
+            !originalRequest.url?.includes("/api/user/refresh")
           ) {
             try {
               const res = await authRefreshToken({
-                refresh_token: refreshToken,
+                refreshToken: refreshToken,
               });
-              localStorage.setItem("accessToken", res.access_token);
+              localStorage.setItem("accessToken", res.accessToken);
+              localStorage.setItem("refreshToken", res.refreshToken);
               // Retry request gốc
               return axiosInstance({
                 ...originalRequest,
-                headers: { ...originalRequest.headers },
+                headers: {
+                  ...originalRequest.headers,
+                  Authorization: `Bearer ${res.accessToken}`,
+                },
               });
             } catch {
               localStorage.removeItem("accessToken");
@@ -80,38 +84,23 @@ axiosInstance.interceptors.response.use(
         break;
 
       case 403:
-        notification.error({
-          message: "Bạn không có quyền truy cập.",
-          placement: "topRight",
-        });
+        message.error("Bạn không có quyền truy cập");
         break;
 
       case 404:
-        notification.error({
-          message: "Không tìm thấy tài nguyên.",
-          placement: "topRight",
-        });
+        message.error("Không tìm thấy");
         break;
 
       case 422:
-        notification.error({
-          message: data?.message || "Dữ liệu không hợp lệ.",
-          placement: "topRight",
-        });
+        message.error("Dữ liệu khong hợp lệ");
         break;
 
       case 500:
-        notification.error({
-          message: "Lỗi server. Vui lòng thử lại sau.",
-          placement: "topRight",
-        });
+        message.error("server err");
         break;
 
       default:
-        notification.error({
-          message: "Đã có lỗi xảy ra.",
-          placement: "topRight",
-        });
+        message.error("Có lỗi xảy ra");
     }
 
     return Promise.reject(error);

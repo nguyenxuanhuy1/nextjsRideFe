@@ -7,6 +7,7 @@ import "leaflet/dist/leaflet.css";
 import { useNotify } from "@/hooks/useNotify";
 import { createTrip } from "@/api/apiUser";
 import { useCurrentLocation } from "@/hooks/useCurrentLocation";
+import Loading from "./Loading";
 
 function useDebounce(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -59,7 +60,7 @@ export default function RoutePicker() {
   const { notifyError, notifySuccess, contextHolder } = useNotify();
 
   const { position, address } = useCurrentLocation();
-
+  const [loading, setLoading] = useState(true);
   const [L, setL] = useState<any>(null);
 
   useEffect(() => {
@@ -152,12 +153,15 @@ export default function RoutePicker() {
     };
 
     try {
+      setLoading(true);
       const res = await createTrip(payload);
       if (res.status === 200) {
         notifySuccess("", `${res?.data}`);
       }
     } catch (err: any) {
       notifyError("", "Vui lòng thử lại sau");
+    } finally {
+      setLoading(false);
     }
   };
 

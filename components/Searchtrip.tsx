@@ -9,6 +9,7 @@ import debounce from "lodash.debounce";
 import Loading from "./Loading";
 import { Car, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { RequestRidePopover } from "./RequestRidePopover";
 
 interface Trip {
   id: number;
@@ -34,6 +35,7 @@ export default function SearchTripPage() {
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
   const router = useRouter();
+
   const statusMap: Record<Trip["status"], { text: string; color: string }> = {
     0: { text: "Mới tạo", color: "#3b82f6" },
     1: { text: "Đang mở", color: "#22c55e" },
@@ -311,22 +313,26 @@ export default function SearchTripPage() {
                 </span>
               </p>
 
-              <Button
-                type="link"
-                icon={<Eye className="w-4 h-4 text-emerald-500" />}
-                className="mt-2 p-0 text-emerald-500"
-                onClick={() => router.push(`/detail-trip/${trip.id}`)}
-              >
-                Xem chi tiết
-              </Button>
-              <Button
-                type="link"
-                className="mt-2 p-0 text-emerald-500 flex items-center gap-1"
-                onClick={() => alert(`Chi tiết chuyến ${trip.id}`)}
-              >
-                <Car className="w-5 h-5" />
-                Xin đi nhờ
-              </Button>
+              <div className="flex justify-between items-center">
+                <Button
+                  type="link"
+                  icon={<Eye className="w-4 h-4 text-emerald-500" />}
+                  className="mt-2 p-0 text-emerald-500"
+                  onClick={() => router.push(`/detail-trip/${trip.id}`)}
+                >
+                  Xem chi tiết
+                </Button>
+
+                <RequestRidePopover
+                  id={trip?.id}
+                  buttonText={
+                    <span className="flex items-center gap-1 text-emerald-500">
+                      <Car className="w-5 h-5" />
+                      Xin đi nhờ
+                    </span>
+                  }
+                />
+              </div>
             </div>
           );
         })}

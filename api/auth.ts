@@ -1,25 +1,20 @@
 import axiosInstance from "./axiosInstance";
 
 interface RefreshTokenResponse {
-  access_token: string;
-  expires_in?: number; // nếu API có trả về thời gian hết hạn
+  accessToken: string;
+  refreshToken: string;
 }
 
-export const authLogin = async (body: any) => {
-  const res = await axiosInstance.post(`auth/login`, body);
-  return res.data;
-};
-
-export const authProfile = async () => {
-  const res = await axiosInstance.get(`auth/profile`);
-  return res.data;
+export const getUserInfor = async () => {
+  const res = await axiosInstance.get(`/api/user/info`);
+  return res;
 };
 
 export const authRefreshToken = async (body: {
-  refresh_token: string;
+  refreshToken: string;
 }): Promise<RefreshTokenResponse> => {
   const res = await axiosInstance.post<RefreshTokenResponse>(
-    `auth/refresh-token`,
+    `/api/user/refresh`,
     body
   );
   return res.data;

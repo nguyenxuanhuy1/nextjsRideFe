@@ -20,15 +20,13 @@ export default function Navbar() {
     { href: "/feedback", label: "Gửi phàn nàn" },
   ];
 
-  // Kiểm tra login
   const checkLogin = () => {
     const token = localStorage.getItem("accessToken");
     const userInfoString = localStorage.getItem("userInfo");
 
     if (token && userInfoString) {
       try {
-        const parsed = JSON.parse(userInfoString);
-        setUserInfo(parsed); // 👈 lưu nguyên object
+        setUserInfo(JSON.parse(userInfoString));
       } catch (err) {
         console.error("Lỗi parse userInfo:", err);
         setUserInfo(null);
@@ -37,19 +35,18 @@ export default function Navbar() {
       setUserInfo(null);
     }
   };
+
   useEffect(() => {
     setMounted(true);
     checkLogin();
 
-    // Lắng nghe event khi login xong
-    const handleUserLogin = () => {
-      const userInfoString = localStorage.getItem("userInfo");
+    const handleUserLogin = (event: any) => {
+      const userInfoString = event?.detail || localStorage.getItem("userInfo");
       if (userInfoString) {
         try {
-          const parsed = JSON.parse(userInfoString);
-          setUserInfo(parsed);
+          setUserInfo(JSON.parse(userInfoString));
         } catch (err) {
-          console.error("Lỗi parse userInfo:", err);
+          console.error(err);
           setUserInfo(null);
         }
       }
@@ -65,10 +62,14 @@ export default function Navbar() {
 
   const handleLogout = () => {
     localStorage.clear();
+    setUserInfo(null);
     router.replace("/");
   };
 
-  // Skeleton khi chưa mount
+  useEffect(() => {
+    checkLogin();
+  }, [pathname]);
+
   if (!mounted) {
     return (
       <nav className="bg-white shadow-sm h-16">
@@ -84,7 +85,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-4">
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
           <div
@@ -99,61 +100,53 @@ export default function Navbar() {
 
           {/* Menu desktop */}
           <div className="hidden sm:flex sm:items-center sm:space-x-8">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`font-medium ${
-                    isActive
-                      ? "text-emerald-600"
-                      : "text-gray-500 hover:text-emerald-600"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`font-medium ${
+                  pathname === item.href
+                    ? "text-emerald-600"
+                    : "text-gray-500 hover:text-emerald-600"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
 
           {/* Right side */}
           <div className="flex items-center space-x-4">
-            <div className="relative cursor-pointer">
-              <Bell className="h-6 w-6 text-gray-600 hover:text-emerald-600" />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                5
-              </span>
-            </div>
+            {userInfo && (
+              <div className="relative cursor-pointer">
+                <Bell className="h-6 w-6 text-gray-600 hover:text-emerald-600" />
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  5
+                </span>
+              </div>
+            )}
 
             {userInfo?.name ? (
               <>
-                {/* Desktop dropdown */}
-                <div className="hidden sm:block relative">
-                  <div className="hidden sm:block relative group">
-                    {/* Avatar + Tên */}
-                    <div className="flex items-center gap-2 cursor-pointer">
-                      <img
-                        src={userInfo.avatarUrl}
-                        alt={userInfo.name}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                      <span className="font-medium text-gray-700 hover:text-emerald-600">
-                        {userInfo.name}
-                      </span>
-                    </div>
-
-                    {/* Dropdown khi hover */}
-                    <div className="absolute right-0 mt-2 w-64 bg-white border rounded-md shadow-lg z-[401] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                      <div className="p-4">
-                        <span
-                          className="font-semibold cursor-pointer text-red-500 hover:text-red-600"
-                          onClick={handleLogout}
-                        >
-                          Đăng xuất
-                        </span>
-                      </div>
-                    </div>
+                {/* Desktop */}
+                <div className="hidden sm:block relative group">
+                  <div className="flex items-center gap-2 cursor-pointer">
+                    <img
+                      src={userInfo.avatarUrl}
+                      alt={userInfo.name}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <span className="font-medium text-gray-700 hover:text-emerald-600">
+                      {userInfo.name}
+                    </span>
+                  </div>
+                  <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <span
+                      className="block p-2 text-red-500 cursor-pointer hover:text-red-600"
+                      onClick={handleLogout}
+                    >
+                      Đăng xuất
+                    </span>
                   </div>
                 </div>
 
@@ -206,7 +199,6 @@ export default function Navbar() {
                       {userInfo?.name}
                     </span>
                   </div>
-
                   <span
                     className="font-semibold cursor-pointer text-red-500 hover:text-red-600"
                     onClick={() => {

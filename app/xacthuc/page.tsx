@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/Loading";
-import { getUserInfor } from "@/api/apiUser";
+import { getUserInfor } from "@/api/auth";
 
 export default function XacThucPage() {
   const router = useRouter();
