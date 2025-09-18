@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Bell, Car, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { notification } from "@/api/apiUser";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -12,7 +13,22 @@ export default function Navbar() {
   const [userInfo, setUserInfo] = useState<any | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [totalNoti, setTotalNoti] = useState<any>(null);
 
+  useEffect(() => {
+    const fetchNotification = async () => {
+      try {
+        const res = await notification();
+        if (res.status === 200) {
+          setTotalNoti(res.data.totalPending);
+        }
+      } catch (error) {
+        console.error("Lỗi khi gọi API thông báo:", error);
+      }
+    };
+
+    fetchNotification();
+  }, []);
   const navItems = [
     { href: "/", label: "Trang chủ" },
     { href: "/search-trip", label: "Tìm chuyến" },
@@ -118,10 +134,15 @@ export default function Navbar() {
           {/* Right side */}
           <div className="flex items-center space-x-4">
             {userInfo && (
-              <div className="relative cursor-pointer">
+              <div
+                className="relative cursor-pointer"
+                onClick={() => {
+                  router.push(`/My-trip`);
+                }}
+              >
                 <Bell className="h-6 w-6 text-gray-600 hover:text-emerald-600" />
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                  5
+                  {totalNoti}
                 </span>
               </div>
             )}

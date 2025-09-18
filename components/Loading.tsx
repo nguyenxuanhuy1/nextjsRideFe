@@ -1,4 +1,3 @@
-// src/components/Loading.tsx
 "use client";
 import Image from "next/image";
 
@@ -11,6 +10,7 @@ export default function Loading() {
         width={200}
         height={100}
         priority
+        unoptimized
       />
     </div>
   );

@@ -1,81 +1,102 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, ChevronUp, User, MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChevronDown, ChevronUp, User } from "lucide-react";
+import { myCreate, notification } from "@/api/apiUser";
+import { Tag } from "antd";
 
-interface Passenger {
+// Interface theo API
+export interface Participant {
   id: number;
-  name: string;
-  pickup: string;
-  status: "pending" | "accepted" | "rejected";
+  userId: number;
+  userName: string;
+  note: string;
+  status: number; // 0=pending, 1=accepted, 2=rejected
 }
 
-interface Trip {
-  id: number;
-  start: string;
-  end: string;
-  distance: number; // mét
-  duration: number; // giây
-  passengers: Passenger[];
+export interface Trip {
+  rideId: number;
+  startAddress: string;
+  endAddress: string;
+  status: number;
+  capacity: number;
+  occupied: number;
+  participants: Participant[];
 }
-
-const mockTrips: Trip[] = [
-  {
-    id: 1,
-    start: "Hà Nội",
-    end: "Hải Phòng",
-    distance: 12000,
-    duration: 1500,
-    passengers: [
-      { id: 1, name: "Nguyễn Văn A", pickup: "Cầu Giấy", status: "pending" },
-      { id: 2, name: "Trần Thị B", pickup: "Long Biên", status: "accepted" },
-    ],
-  },
-  {
-    id: 2,
-    start: "Hà Nội",
-    end: "Ninh Bình",
-    distance: 98000,
-    duration: 5400,
-    passengers: [
-      { id: 3, name: "Lê Văn C", pickup: "Phủ Lý", status: "rejected" },
-    ],
-  },
-];
 
 export default function MyTripsPage() {
-  const [trips, setTrips] = useState<Trip[]>(mockTrips);
+  const [trips, setTrips] = useState<Trip[]>([]);
   const [openTrip, setOpenTrip] = useState<number | null>(null);
+  const [outstanding, setOutstanding] = useState<any>(null);
 
-  const formatDistance = (m: number) => {
-    return m >= 1000 ? `${(m / 1000).toFixed(1)} km` : `${m} m`;
+  useEffect(() => {
+    const fetchTrips = async () => {
+      try {
+        const res = await myCreate();
+        if (res.status === 200) {
+          setTrips(res.data);
+        }
+      } catch (error) {
+        console.error("Lỗi khi gọi API:", error);
+      }
+    };
+
+    fetchTrips();
+  }, []);
+
+  // lấy  danh sách chuyến có tbao
+  useEffect(() => {
+    const fetchNotification = async () => {
+      try {
+        const res = await notification();
+        if (res.status === 200) {
+          setOutstanding(res.data.rides);
+        }
+      } catch (error) {
+        console.error("Lỗi khi gọi API thông báo:", error);
+      }
+    };
+
+    fetchNotification();
+  }, []);
+
+  const getStatusLabel = (status: number) => {
+    switch (status) {
+      case 0:
+        return <Tag color="gray">Chờ phản hồi</Tag>;
+      case 1:
+        return <Tag color="green">Đã được chấp nhận</Tag>;
+      case 2:
+        return <Tag color="red">Đã bị từ chối</Tag>;
+      default:
+        return <Tag color="default">Chờ phản hồi</Tag>;
+    }
   };
 
-  const formatDuration = (s: number) => {
-    const minutes = Math.ceil(s / 60);
-    if (minutes < 60) return `${minutes} phút`;
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return mins > 0 ? `${hours} giờ ${mins} phút` : `${hours} giờ`;
-  };
-
-  const handlePassengerAction = (
-    tripId: number,
+  // Xử lý accept/reject hành khách
+  const handlePassengerAction = async (
+    rideId: number,
     passengerId: number,
-    status: "accepted" | "rejected"
+    action: "accepted" | "rejected"
   ) => {
-    setTrips((prev) =>
-      prev.map((t) =>
-        t.id === tripId
-          ? {
-              ...t,
-              passengers: t.passengers.map((p) =>
-                p.id === passengerId ? { ...p, status } : p
-              ),
-            }
-          : t
-      )
-    );
+    try {
+      setTrips((prev) =>
+        prev.map((trip) =>
+          trip.rideId === rideId
+            ? {
+                ...trip,
+                participants: trip.participants.map((p) =>
+                  p.id === passengerId
+                    ? { ...p, status: action === "accepted" ? 1 : 2 }
+                    : p
+                ),
+              }
+            : trip
+        )
+      );
+    } catch (err) {
+      console.error("Lỗi khi xử lý passenger:", err);
+    }
   };
 
   return (
@@ -85,26 +106,32 @@ export default function MyTripsPage() {
       </h1>
       {trips.map((trip) => (
         <div
-          key={trip.id}
+          key={trip.rideId}
           className="border rounded-2xl p-4 shadow-sm bg-white"
         >
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
             <div>
-              <p className="font-semibold text-lg">
-                {trip.start} → {trip.end}
+              <p className="font-semibold text-lg flex items-center gap-2">
+                {outstanding?.includes(trip.rideId) && (
+                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                )}
+                {trip.startAddress} → {trip.endAddress}
               </p>
               <p className="text-gray-600 text-sm">
-                <strong>Quãng đường:</strong> {formatDistance(trip.distance)}
+                <strong>Sức chứa tối đa:</strong> {trip.capacity} chỗ
               </p>
               <p className="text-gray-600 text-sm">
-                <strong>Thời gian:</strong> {formatDuration(trip.duration)}
+                <strong>Đã có:</strong> {trip.occupied} người
               </p>
             </div>
+
             <button
-              onClick={() => setOpenTrip(openTrip === trip.id ? null : trip.id)}
+              onClick={() =>
+                setOpenTrip(openTrip === trip.rideId ? null : trip.rideId)
+              }
               className="flex items-center text-emerald-600 hover:text-emerald-800 font-medium"
             >
-              {openTrip === trip.id ? (
+              {openTrip === trip.rideId ? (
                 <>
                   <ChevronUp className="w-5 h-5 mr-1" /> Ẩn bớt
                 </>
@@ -117,9 +144,9 @@ export default function MyTripsPage() {
             </button>
           </div>
 
-          {openTrip === trip.id && (
+          {openTrip === trip.rideId && (
             <div className="mt-4 border-t pt-3 space-y-3">
-              {trip.passengers.map((p) => (
+              {trip.participants.map((p) => (
                 <div
                   key={p.id}
                   className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-gray-50 p-3 rounded-xl"
@@ -127,38 +154,35 @@ export default function MyTripsPage() {
                   <div className="flex items-center gap-3">
                     <User className="w-5 h-5 text-gray-500" />
                     <div>
-                      <p className="font-medium">{p.name}</p>
-                      <p className="text-sm text-gray-600 flex items-center gap-1">
-                        <MapPin className="w-4 h-4" /> {p.pickup}
+                      <p className="font-medium">{p.userName}</p>
+                      <p className="text-sm text-gray-600">
+                        Ghi chú: {p.note || "Không có"}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Trạng thái: {getStatusLabel(p.status)}
                       </p>
                     </div>
                   </div>
-                  <div className="flex gap-2 mt-2 sm:mt-0">
-                    <button
-                      onClick={() =>
-                        handlePassengerAction(trip.id, p.id, "accepted")
-                      }
-                      className={`px-3 py-1 rounded-lg text-sm font-medium ${
-                        p.status === "accepted"
-                          ? "bg-emerald-600 text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-emerald-100"
-                      }`}
-                    >
-                      Chấp nhận
-                    </button>
-                    <button
-                      onClick={() =>
-                        handlePassengerAction(trip.id, p.id, "rejected")
-                      }
-                      className={`px-3 py-1 rounded-lg text-sm font-medium ${
-                        p.status === "rejected"
-                          ? "bg-red-600 text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-red-100"
-                      }`}
-                    >
-                      Từ chối
-                    </button>
-                  </div>
+                  {p.status === 0 && (
+                    <div className="flex gap-2 mt-2 sm:mt-0">
+                      <button
+                        onClick={() =>
+                          handlePassengerAction(trip.rideId, p.id, "accepted")
+                        }
+                        className="px-3 py-1 rounded-lg text-sm font-medium bg-emerald-600 text-white"
+                      >
+                        Chấp nhận
+                      </button>
+                      <button
+                        onClick={() =>
+                          handlePassengerAction(trip.rideId, p.id, "rejected")
+                        }
+                        className="px-3 py-1 rounded-lg text-sm font-medium bg-red-600 text-white"
+                      >
+                        Từ chối
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

@@ -23,3 +23,13 @@ export const joinTrip = async (id: number, body: any) => {
   });
   return res;
 };
+
+export const notification = async () => {
+  const res = await axiosInstance.get(`/api/rides/notifications`);
+  return res;
+};
+
+export const myCreate = async () => {
+  const res = await axiosInstance.get(`/api/routes/my-created-rides`);
+  return res;
+};
