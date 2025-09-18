@@ -33,3 +33,18 @@ export const myCreate = async () => {
   const res = await axiosInstance.get(`/api/routes/my-created-rides`);
   return res;
 };
+export const acceptPassenger = async (participantId: number) => {
+  const res = await axiosInstance.post(
+    `/api/rides/approve/${participantId}`,
+    {}
+  );
+  return res;
+};
+
+export const rejectPassenger = async (participantId: number) => {
+  const res = await axiosInstance.post(
+    `/api/rides/reject/${participantId}`,
+    {}
+  );
+  return res;
+};

@@ -6,6 +6,8 @@ import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 import { getTripDetail } from "@/api/apiUser";
 import Loading from "./Loading";
+import { RequestRidePopover } from "./RequestRidePopover";
+import { Car } from "lucide-react";
 
 // Dynamic import các component react-leaflet
 const MapContainer = dynamic(
@@ -149,13 +151,18 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
         })()}
       </p>
 
-      <button
-        onClick={() => alert(`Xin đi nhờ chuyến ${trip.id}`)}
-        className="w-full py-2 mt-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition"
-      >
-        Xin đi nhờ
-      </button>
-
+      {/* <button className="w-full py-2 mt-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition">
+        
+      </button> */}
+      <RequestRidePopover
+        id={trip.id}
+        buttonText={
+          <span className="flex items-center gap-1 text-emerald-500">
+            <Car className="w-5 h-5" />
+            Xin đi nhờ
+          </span>
+        }
+      />
       <div className="h-[500px] w-full">
         <MapContainer
           center={start}

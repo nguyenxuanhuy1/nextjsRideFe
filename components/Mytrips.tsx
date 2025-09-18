@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp, User } from "lucide-react";
-import { myCreate, notification } from "@/api/apiUser";
+import {
+  acceptPassenger,
+  myCreate,
+  notification,
+  rejectPassenger,
+} from "@/api/apiUser";
 import { Tag } from "antd";
 
 // Interface theo API
@@ -75,25 +80,22 @@ export default function MyTripsPage() {
 
   // Xử lý accept/reject hành khách
   const handlePassengerAction = async (
-    rideId: number,
-    passengerId: number,
+    participantId: number,
     action: "accepted" | "rejected"
   ) => {
     try {
-      setTrips((prev) =>
-        prev.map((trip) =>
-          trip.rideId === rideId
-            ? {
-                ...trip,
-                participants: trip.participants.map((p) =>
-                  p.id === passengerId
-                    ? { ...p, status: action === "accepted" ? 1 : 2 }
-                    : p
-                ),
-              }
-            : trip
-        )
-      );
+      if (action === "accepted") {
+        await acceptPassenger(participantId);
+         window.dispatchEvent(new CustomEvent("updateNotification"));
+      } else {
+        await rejectPassenger(participantId);
+         window.dispatchEvent(new CustomEvent("updateNotification"));
+      }
+
+      const res = await myCreate();
+      if (res.status === 200) {
+        setTrips(res.data);
+      }
     } catch (err) {
       console.error("Lỗi khi xử lý passenger:", err);
     }
@@ -113,10 +115,21 @@ export default function MyTripsPage() {
             <div>
               <p className="font-semibold text-lg flex items-center gap-2">
                 {outstanding?.includes(trip.rideId) && (
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse shrink-0" />
                 )}
-                {trip.startAddress} → {trip.endAddress}
+
+                <span className="flex-1 overflow-hidden">
+                  <span className="block text-sm sm:text-base truncate">
+                    <span className="text-green-600 font-semibold">Từ:</span>{" "}
+                    {trip.startAddress}
+                  </span>
+                  <span className="block text-sm sm:text-base truncate">
+                    <span className="text-blue-600 font-semibold">Đến:</span>{" "}
+                    {trip.endAddress}
+                  </span>
+                </span>
               </p>
+
               <p className="text-gray-600 text-sm">
                 <strong>Sức chứa tối đa:</strong> {trip.capacity} chỗ
               </p>
@@ -166,17 +179,13 @@ export default function MyTripsPage() {
                   {p.status === 0 && (
                     <div className="flex gap-2 mt-2 sm:mt-0">
                       <button
-                        onClick={() =>
-                          handlePassengerAction(trip.rideId, p.id, "accepted")
-                        }
+                        onClick={() => handlePassengerAction(p.id, "accepted")}
                         className="px-3 py-1 rounded-lg text-sm font-medium bg-emerald-600 text-white"
                       >
                         Chấp nhận
                       </button>
                       <button
-                        onClick={() =>
-                          handlePassengerAction(trip.rideId, p.id, "rejected")
-                        }
+                        onClick={() => handlePassengerAction(p.id, "rejected")}
                         className="px-3 py-1 rounded-lg text-sm font-medium bg-red-600 text-white"
                       >
                         Từ chối

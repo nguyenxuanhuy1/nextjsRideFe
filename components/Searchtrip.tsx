@@ -163,15 +163,19 @@ export default function SearchTripPage() {
             <Eye className="w-4 h-4" />
             Xem chi tiết
           </Button>
-
-          <Button
-            type="link"
-            className="flex items-center gap-1 text-emerald-500"
-            onClick={() => alert(`Xin đi nhờ chuyến ${record.id}`)}
-          >
-            <Car className="w-4 h-4" />
-            Xin đi nhờ
-          </Button>
+          {record.status === 1 && (
+            <Button type="text">
+              <RequestRidePopover
+                id={record?.id}
+                buttonText={
+                  <span className="flex items-center gap-1 text-emerald-500">
+                    <Car className="w-5 h-5" />
+                    Xin đi nhờ
+                  </span>
+                }
+              />
+            </Button>
+          )}
         </div>
       ),
     },

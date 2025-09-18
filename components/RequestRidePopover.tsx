@@ -96,7 +96,7 @@ export function RequestRidePopover({
             top: position.top,
             left: position.left,
             width: 256,
-            zIndex: 999,
+            zIndex: 9999,
           }}
           className="bg-white border rounded shadow-lg p-3"
         >

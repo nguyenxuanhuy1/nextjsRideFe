@@ -15,6 +15,20 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [totalNoti, setTotalNoti] = useState<any>(null);
 
+  // useEffect(() => {
+  //   const fetchNotification = async () => {
+  //     try {
+  //       const res = await notification();
+  //       if (res.status === 200) {
+  //         setTotalNoti(res.data.totalPending);
+  //       }
+  //     } catch (error) {
+  //       console.error("Lỗi khi gọi API thông báo:", error);
+  //     }
+  //   };
+
+  //   fetchNotification();
+  // }, []);
   useEffect(() => {
     const fetchNotification = async () => {
       try {
@@ -27,8 +41,21 @@ export default function Navbar() {
       }
     };
 
+    // Lần đầu load
     fetchNotification();
+
+    // Lắng nghe custom event
+    const handleUpdate = () => {
+      fetchNotification();
+    };
+
+    window.addEventListener("updateNotification", handleUpdate);
+
+    return () => {
+      window.removeEventListener("updateNotification", handleUpdate);
+    };
   }, []);
+
   const navItems = [
     { href: "/", label: "Trang chủ" },
     { href: "/search-trip", label: "Tìm chuyến" },
