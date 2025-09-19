@@ -163,19 +163,18 @@ export default function SearchTripPage() {
             <Eye className="w-4 h-4" />
             Xem chi tiết
           </Button>
-          {record.status === 1 && (
-            <Button type="text">
+          {record.status === 1 ||
+            (record.status === 0 && (
               <RequestRidePopover
                 id={record?.id}
                 buttonText={
                   <span className="flex items-center gap-1 text-emerald-500">
                     <Car className="w-5 h-5" />
-                    Xin đi nhờ
+                    Xin
                   </span>
                 }
               />
-            </Button>
-          )}
+            ))}
         </div>
       ),
     },

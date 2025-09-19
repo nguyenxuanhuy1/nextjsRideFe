@@ -15,6 +15,7 @@ export interface Participant {
   id: number;
   userId: number;
   userName: string;
+  avatar: string;
   note: string;
   status: number; // 0=pending, 1=accepted, 2=rejected
 }
@@ -53,6 +54,11 @@ export default function MyTripsPage() {
   useEffect(() => {
     const fetchNotification = async () => {
       try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          return;
+        }
+
         const res = await notification();
         if (res.status === 200) {
           setOutstanding(res.data.rides);
@@ -86,10 +92,10 @@ export default function MyTripsPage() {
     try {
       if (action === "accepted") {
         await acceptPassenger(participantId);
-         window.dispatchEvent(new CustomEvent("updateNotification"));
+        window.dispatchEvent(new CustomEvent("updateNotification"));
       } else {
         await rejectPassenger(participantId);
-         window.dispatchEvent(new CustomEvent("updateNotification"));
+        window.dispatchEvent(new CustomEvent("updateNotification"));
       }
 
       const res = await myCreate();
@@ -165,7 +171,11 @@ export default function MyTripsPage() {
                   className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-gray-50 p-3 rounded-xl"
                 >
                   <div className="flex items-center gap-3">
-                    <User className="w-5 h-5 text-gray-500" />
+                    <img
+                      src={p.avatar}
+                      alt={p.userName}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
                     <div>
                       <p className="font-medium">{p.userName}</p>
                       <p className="text-sm text-gray-600">

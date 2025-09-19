@@ -13,25 +13,15 @@ export default function Navbar() {
   const [userInfo, setUserInfo] = useState<any | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [totalNoti, setTotalNoti] = useState<any>(null);
+  const [totalNoti, setTotalNoti] = useState<any>(0);
 
-  // useEffect(() => {
-  //   const fetchNotification = async () => {
-  //     try {
-  //       const res = await notification();
-  //       if (res.status === 200) {
-  //         setTotalNoti(res.data.totalPending);
-  //       }
-  //     } catch (error) {
-  //       console.error("Lỗi khi gọi API thông báo:", error);
-  //     }
-  //   };
-
-  //   fetchNotification();
-  // }, []);
   useEffect(() => {
     const fetchNotification = async () => {
       try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          return;
+        }
         const res = await notification();
         if (res.status === 200) {
           setTotalNoti(res.data.totalPending);
@@ -50,9 +40,11 @@ export default function Navbar() {
     };
 
     window.addEventListener("updateNotification", handleUpdate);
+    window.addEventListener("userLogin", fetchNotification);
 
     return () => {
       window.removeEventListener("updateNotification", handleUpdate);
+      window.removeEventListener("userLogin", fetchNotification);
     };
   }, []);
 

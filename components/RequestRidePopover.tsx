@@ -60,9 +60,12 @@ export function RequestRidePopover({
         if (onSuccess) onSuccess();
         notifySuccess("Gửi yêu cầu thành công!");
       }
-    } catch (err) {
-      console.error(err);
-      notifyError("Gửi thất bại!");
+    } catch (err: any) {
+      if (err) {
+        notifyError(err.response.data.message);
+      } else {
+        notifyError("Gửi thất bại!");
+      }
     } finally {
       setLoading(false);
     }
@@ -127,7 +130,7 @@ export function RequestRidePopover({
       <button
         ref={buttonRef}
         onClick={togglePopover}
-        className="px-2 py-1 text-emerald-500 flex items-center gap-1 border border-emerald-500 rounded hover:bg-emerald-50 transition"
+        className=" h-9 px-3 text-emerald-500 flex items-center gap-1 border border-emerald-500 rounded hover:bg-emerald-50 transition"
       >
         {buttonText}
       </button>

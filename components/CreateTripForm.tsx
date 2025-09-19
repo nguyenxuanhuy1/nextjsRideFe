@@ -50,8 +50,8 @@ export default function RoutePicker() {
   const [startSuggestions, setStartSuggestions] = useState<any[]>([]);
   const [endSuggestions, setEndSuggestions] = useState<any[]>([]);
 
-  const debouncedStart = useDebounce(startInput, 300);
-  const debouncedEnd = useDebounce(endInput, 300);
+  const debouncedStart = useDebounce(startInput, 1000);
+  const debouncedEnd = useDebounce(endInput, 1000);
 
   const [vehicleType, setVehicleType] = useState("motorbike");
   const [carSeats, setCarSeats] = useState(1);
@@ -62,6 +62,8 @@ export default function RoutePicker() {
   const { position, address } = useCurrentLocation();
   const [loading, setLoading] = useState(true);
   const [L, setL] = useState<any>(null);
+  const [isSelectingStart, setIsSelectingStart] = useState(false);
+  const [isSelectingEnd, setIsSelectingEnd] = useState(false);
 
   useEffect(() => {
     import("leaflet").then((mod) => setL(mod));
@@ -102,12 +104,20 @@ export default function RoutePicker() {
   };
 
   useEffect(() => {
+    if (isSelectingStart) {
+      setIsSelectingStart(false); // reset lại
+      return;
+    }
     debouncedStart
       ? fetchSuggestions(debouncedStart, "start")
       : setStartSuggestions([]);
   }, [debouncedStart]);
 
   useEffect(() => {
+    if (isSelectingEnd) {
+      setIsSelectingEnd(false);
+      return;
+    }
     debouncedEnd
       ? fetchSuggestions(debouncedEnd, "end")
       : setEndSuggestions([]);
@@ -123,11 +133,13 @@ export default function RoutePicker() {
       setStartAddress(item.display_name); // giá trị chính thức
       setStartInput(item.display_name); // hiển thị trong input
       setStartSuggestions([]);
+      setIsSelectingStart(true);
     } else {
       setEnd(latlng);
       setEndAddress(item.display_name);
       setEndInput(item.display_name);
       setEndSuggestions([]);
+      setIsSelectingEnd(true);
     }
   };
 
@@ -157,6 +169,15 @@ export default function RoutePicker() {
       const res = await createTrip(payload);
       if (res.status === 200) {
         notifySuccess("", `${res?.data}`);
+        setStart(null);
+        setEnd(null);
+        setStartInput("");
+        setEndInput("");
+        setStartAddress("");
+        setEndAddress("");
+        setStartTime("");
+        setCarSeats(1);
+        setVehicleType("motorbike");
       }
     } catch (err: any) {
       notifyError("", "Vui lòng thử lại sau");
@@ -286,12 +307,32 @@ export default function RoutePicker() {
         {/* Thời gian */}
         <div className="mb-3">
           <label className="block mb-1 font-medium">Thời gian khởi hành</label>
-          <input
-            type="datetime-local"
-            required
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            onChange={(e) => setStartTime(e.target.value)}
-          />
+          <div className="flex gap-2">
+            {/* Ngày */}
+            <input
+              type="date"
+              required
+              min={new Date().toISOString().split("T")[0]} // chặn ngày quá khứ
+              className="flex-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              onChange={(e) =>
+                setStartTime(
+                  (prev) => `${e.target.value}T${prev.split("T")[1] || "00:00"}`
+                )
+              }
+            />
+
+            {/* Giờ */}
+            <input
+              type="time"
+              required
+              className="w-32 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              onChange={(e) =>
+                setStartTime(
+                  (prev) => `${prev.split("T")[0]}T${e.target.value}`
+                )
+              }
+            />
+          </div>
         </div>
 
         <button
