@@ -1,14 +1,12 @@
-// /utils/axiosInstance.ts
 import axios from "axios";
-import { message, notification } from "antd";
+import { notification } from "antd";
 import { authRefreshToken } from "@/api/auth";
+import { ENV } from "./urlApi";
 
-// Tạo axios instance với baseURL động (Next.js)
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
+  baseURL: ENV.API_URL,
 });
 
-// Request Interceptor: gắn token nếu có
 axiosInstance.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
@@ -22,18 +20,12 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: xử lý lỗi
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    // Nếu không có response (lỗi mạng)
     if (!error.response) {
       if (typeof window !== "undefined") {
-        // notification.error({
-        //   message: "Lỗi mạng",
-        //   description: "Vui lòng thử lại.",
-        //   placement: "topRight",
-        // });
+        console.log("Vui lòng thử lại.");
       }
       return Promise.reject(error);
     }
@@ -73,34 +65,34 @@ axiosInstance.interceptors.response.use(
             } catch {
               localStorage.removeItem("accessToken");
               localStorage.removeItem("refreshToken");
-              window.location.href = "/auth/login";
+              window.location.href = "/";
             }
           } else {
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
-            window.location.href = "/auth/login";
+            window.location.href = "/";
           }
         }
         break;
 
       case 403:
-        message.error("Bạn không có quyền truy cập");
+        console.log("Bạn không có quyền truy cập");
         break;
 
       case 404:
-        message.error("Không tìm thấy");
+        console.log("Không tìm thấy");
         break;
 
       case 422:
-        message.error("Dữ liệu khong hợp lệ");
+        console.log("Dữ liệu khong hợp lệ");
         break;
 
       case 500:
-        message.error("server err");
+        console.log("server err");
         break;
 
       default:
-        message.error("Có lỗi xảy ra");
+        console.log("Có lỗi xảy ra");
     }
 
     return Promise.reject(error);

@@ -48,3 +48,8 @@ export const rejectPassenger = async (participantId: number) => {
   );
   return res;
 };
+
+export const viewFeedbback = async () => {
+  const res = await axiosInstance.get(`/api/feedbacks/top3`);
+  return res;
+};

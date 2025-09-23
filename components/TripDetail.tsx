@@ -47,12 +47,9 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
 
       // Cài icon mặc định
       const DefaultIcon = new Leaflet.Icon({
-        iconUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-        iconRetinaUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-        shadowUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+        iconUrl: "/marker-icon.png",
+        iconRetinaUrl: "/marker-icon-2x.png",
+        shadowUrl: "/marker-shadow.png",
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
@@ -139,7 +136,7 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
         <strong>Thời gian ước tính:</strong>{" "}
         {(() => {
           // duration đang là giây → nhân 2
-          const adjusted = trip.duration * 3;
+          const adjusted = trip.duration * 1.5;
 
           if (adjusted < 3600) {
             return `${Math.round(adjusted / 60)} phút`;

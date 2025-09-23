@@ -8,6 +8,7 @@ import { useNotify } from "@/hooks/useNotify";
 import { createTrip } from "@/api/apiUser";
 import { useCurrentLocation } from "@/hooks/useCurrentLocation";
 import Loading from "./Loading";
+import { ENV } from "@/api/urlApi";
 
 function useDebounce(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -50,8 +51,8 @@ export default function RoutePicker() {
   const [startSuggestions, setStartSuggestions] = useState<any[]>([]);
   const [endSuggestions, setEndSuggestions] = useState<any[]>([]);
 
-  const debouncedStart = useDebounce(startInput, 1000);
-  const debouncedEnd = useDebounce(endInput, 1000);
+  const debouncedStart = useDebounce(startInput, 150);
+  const debouncedEnd = useDebounce(endInput, 150);
 
   const [vehicleType, setVehicleType] = useState("motorbike");
   const [carSeats, setCarSeats] = useState(1);
@@ -72,7 +73,7 @@ export default function RoutePicker() {
   const startIcon = useMemo(() => {
     if (!L) return null;
     return L.icon({
-      iconUrl: "/motorcycle.png",
+      iconUrl: "/marker-icon.png",
       iconSize: [32, 32],
       iconAnchor: [16, 32],
     });
@@ -81,7 +82,7 @@ export default function RoutePicker() {
   const endIcon = useMemo(() => {
     if (!L) return null;
     return L.icon({
-      iconUrl: "/location.png",
+      iconUrl: "/end.png",
       iconSize: [32, 32],
       iconAnchor: [16, 32],
     });
@@ -91,9 +92,7 @@ export default function RoutePicker() {
     if (!query) return;
     try {
       const res = await axios.get(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          query
-        )}&addressdetails=1&limit=5&countrycodes=vn`
+        `${ENV.MAP_URL}/search?format=json&q=${encodeURIComponent(query)}`
       );
       type === "start"
         ? setStartSuggestions(res.data)
@@ -151,6 +150,14 @@ export default function RoutePicker() {
     const token = localStorage.getItem("accessToken");
     if (!token) {
       notifyError("", "Vui lòng đăng nhập trước khi tạo chuyến đi");
+      return;
+    }
+    if (!startTime) {
+      notifyError("", "Bạn phải chọn thời gian xuất phát");
+      return;
+    }
+    if (vehicleType === "car" && (!carSeats || carSeats < 1)) {
+      notifyError("", "Bạn phải nhập số chỗ ngồi hợp lệ");
       return;
     }
     const payload = {
@@ -312,6 +319,7 @@ export default function RoutePicker() {
             <input
               type="date"
               required
+              value={startTime ? startTime.split("T")[0] : ""}
               min={new Date().toISOString().split("T")[0]} // chặn ngày quá khứ
               className="flex-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
               onChange={(e) =>
@@ -325,6 +333,7 @@ export default function RoutePicker() {
             <input
               type="time"
               required
+              value={startTime ? startTime.split("T")[1] : ""}
               className="w-32 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
               onChange={(e) =>
                 setStartTime(

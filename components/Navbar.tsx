@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, Car, Menu, X } from "lucide-react";
+import { Bell, Car, LogOut, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { notification } from "@/api/apiUser";
+import { ENV } from "@/api/urlApi";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -92,7 +93,7 @@ export default function Navbar() {
   }, []);
 
   const handleLogin = () => {
-    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    window.location.href = `${ENV.API_URL}/oauth2/authorization/google`;
   };
 
   const handleLogout = () => {
@@ -180,12 +181,12 @@ export default function Navbar() {
                       {userInfo.name}
                     </span>
                   </div>
-                  <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-401">
                     <span
-                      className="block p-2 text-red-500 cursor-pointer hover:text-red-600"
+                      className="flex items-center gap-2 p-2 text-red-500 cursor-pointer hover:text-red-600"
                       onClick={handleLogout}
                     >
-                      Đăng xuất
+                      <LogOut size={16} /> Đăng xuất
                     </span>
                   </div>
                 </div>

@@ -10,6 +10,7 @@ import Loading from "./Loading";
 import { Car, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { RequestRidePopover } from "./RequestRidePopover";
+import { ENV } from "@/api/urlApi";
 
 interface Trip {
   id: number;
@@ -49,9 +50,7 @@ export default function SearchTripPage() {
       if (!query) return;
       try {
         const res = await axios.get(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-            query
-          )}&addressdetails=1&limit=5&countrycodes=vn`
+          `${ENV.MAP_URL}/search?format=json&q=${encodeURIComponent(query)}`
         );
         type === "start"
           ? setStartSuggestions(res.data)

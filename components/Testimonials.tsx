@@ -1,4 +1,25 @@
+"use client";
+import { viewFeedbback } from "@/api/apiUser";
+import { Star } from "lucide-react";
+import { useEffect, useState } from "react";
+
 export default function Testimonials() {
+  const [viewFb, setViewFb] = useState<any>();
+  useEffect(() => {
+    const fetchViewfeedback = async () => {
+      try {
+        const res = await viewFeedbback();
+        if (res.status === 200) {
+          setViewFb(res.data);
+        }
+      } catch (error) {
+        console.error("Lỗi khi gọi API thông báo:", error);
+      }
+    };
+
+    fetchViewfeedback();
+  }, []);
+
   return (
     <div className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -9,21 +30,32 @@ export default function Testimonials() {
           Người dùng nói gì?
         </p>
 
-        <div className="mt-10 grid gap-8 lg:grid-cols-2">
-          <div className="bg-gray-50 p-6 rounded-lg shadow">
-            <p className="text-gray-700">
-              “Đi chung xe giúp tôi tiết kiệm được khá nhiều chi phí đi lại và
-              còn quen thêm nhiều bạn mới.”
-            </p>
-            <p className="mt-4 font-semibold text-emerald-600">Nguyễn Minh</p>
-          </div>
-          <div className="bg-gray-50 p-6 rounded-lg shadow">
-            <p className="text-gray-700">
-              “Ứng dụng rất tiện lợi, dễ sử dụng. Tôi cảm thấy an toàn và vui vẻ
-              khi đi chung xe.”
-            </p>
-            <p className="mt-4 font-semibold text-emerald-600">Trần Lan</p>
-          </div>
+        <div className="mt-10 grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {viewFb?.map((fb: any) => (
+            <div
+              key={fb.id}
+              className="bg-gray-50 p-6 rounded-lg shadow flex flex-col"
+            >
+              {/* Tên + sao */}
+              <div className="flex items-center gap-2 font-semibold text-emerald-600">
+                {fb.userName}
+                <span className="flex">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      size={16}
+                      className={
+                        i < fb.rating
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-300"
+                      }
+                    />
+                  ))}
+                </span>
+              </div>
+              <p className="mt-3 text-gray-700">“{fb.comment}”</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

@@ -11,9 +11,8 @@ export default function FeedbackForm() {
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
   const [loading, setLoading] = useState(false);
-  const { notifySuccess, contextHolder } = useNotify();
+  const { notifySuccess, notifyError, contextHolder } = useNotify();
   const handleSubmit = async (e: React.FormEvent) => {
-    debugger;
     e.preventDefault();
     setLoading(true);
 
@@ -29,8 +28,12 @@ export default function FeedbackForm() {
         setFeedback("");
         setRating(5);
       }
-    } catch (error) {
-      notifySuccess("", "Tạm thời có lỗi hãy quay lại sau");
+    } catch (error: any) {
+      if (error) {
+        notifyError("", error?.response?.data?.message);
+      } else {
+        notifyError("", "Tạm thời có lỗi hãy quay lại sau");
+      }
     } finally {
       setLoading(false);
     }
