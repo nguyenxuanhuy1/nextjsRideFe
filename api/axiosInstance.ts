@@ -63,8 +63,7 @@ axiosInstance.interceptors.response.use(
                 },
               });
             } catch {
-              localStorage.removeItem("accessToken");
-              localStorage.removeItem("refreshToken");
+              localStorage.clear();
               window.location.href = "/";
             }
           } else {

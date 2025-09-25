@@ -1,14 +1,19 @@
+import {
+  CreateTripPayload,
+  FeedbackPayload,
+  SearchTripPayload,
+} from "@/hooks/interface";
 import axiosInstance from "./axiosInstance";
 
-export const createTrip = async (body: any) => {
+export const createTrip = async (body: CreateTripPayload) => {
   const res = await axiosInstance.post(`/api/routes/create`, body);
   return res;
 };
-export const searchTrip = async (body: any) => {
+export const searchTrip = async (body: SearchTripPayload) => {
   const res = await axiosInstance.post(`/api/routes/search`, body);
   return res;
 };
-export const feedBack = async (body: any) => {
+export const feedBack = async (body: FeedbackPayload) => {
   const res = await axiosInstance.post(`/api/feedbacks`, body);
   return res;
 };
@@ -17,7 +22,7 @@ export const getTripDetail = async (id: number) => {
   return res;
 };
 
-export const joinTrip = async (id: number, body: any) => {
+export const joinTrip = async (id: number, body: string) => {
   const res = await axiosInstance.post(`/api/rides/join/${id}`, {
     note: body,
   });

@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Spin } from "antd";
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 import { getTripDetail } from "@/api/apiUser";
 import Loading from "./Loading";
 import { RequestRidePopover } from "./RequestRidePopover";
 import { Car } from "lucide-react";
+import * as Leaflet from "leaflet";
+import { useMap } from "react-leaflet";
+import { Trip } from "@/hooks/interface";
 
-// Dynamic import các component react-leaflet
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
   { ssr: false }
@@ -30,22 +31,38 @@ const Polyline = dynamic(
   { ssr: false }
 );
 
-// Interface props
+interface FitBoundsProps {
+  polyline: [number, number][];
+}
+
+const FitBounds: React.FC<FitBoundsProps> = ({ polyline }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (polyline.length) {
+      const bounds = Leaflet.latLngBounds(polyline);
+      map.fitBounds(bounds, { padding: [50, 50] });
+    }
+  }, [map, polyline]);
+
+  return null;
+};
+
+// Component chính
 interface TripDetailProps {
   tripId: number;
 }
 
 export default function TripDetailPage({ tripId }: TripDetailProps) {
-  const [trip, setTrip] = useState<any>(null);
+  const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
-  const [L, setL] = useState<any>(null);
+  const [L, setL] = useState<typeof Leaflet | null>(null);
 
-  // Lấy leaflet trên client
+  // Load leaflet và cài icon mặc định
   useEffect(() => {
     import("leaflet").then((mod) => {
       const Leaflet = mod.default;
 
-      // Cài icon mặc định
       const DefaultIcon = new Leaflet.Icon({
         iconUrl: "/marker-icon.png",
         iconRetinaUrl: "/marker-icon-2x.png",
@@ -79,10 +96,8 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
   };
 
   if (loading) return <Loading />;
-
   if (!trip) return <p className="text-center mt-10">Không tìm thấy chuyến</p>;
 
-  // Parse routeGeoJson
   const route = trip.routeGeoJson ? JSON.parse(trip.routeGeoJson) : null;
   if (!route || route.type !== "LineString" || !route.coordinates.length) {
     return (
@@ -90,35 +105,16 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
     );
   }
 
-  // GeoJSON dùng [lng, lat], Leaflet dùng [lat, lng]
   const polyline: [number, number][] = route.coordinates.map(
     ([lng, lat]: [number, number]) => [lat, lng]
   );
-
   const start: [number, number] = polyline[0];
   const end: [number, number] = polyline[polyline.length - 1];
 
-  // Component FitBounds client only
-  const FitBounds = () => {
-    const { useMap } = require("react-leaflet");
-    const map = useMap();
-    useEffect(() => {
-      if (polyline.length) {
-        map.fitBounds(L.latLngBounds(polyline), { padding: [50, 50] });
-      }
-    }, [map]);
-    return null;
-  };
-
-  if (!L)
-    return (
-      <p className="text-center mt-10">
-        <Loading />
-      </p>
-    );
+  if (!L) return <Loading />;
 
   return (
-    <div className=" mx-auto space-y-3">
+    <div className="mx-auto space-y-3">
       <p>
         <strong>Điểm đi:</strong> {trip.startAddress}
       </p>
@@ -131,26 +127,17 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
           ? `${(trip.distance / 1000).toFixed(1)} km`
           : `${trip.distance} m`}
       </p>
-
       <p>
         <strong>Thời gian ước tính:</strong>{" "}
         {(() => {
-          // duration đang là giây → nhân 2
           const adjusted = trip.duration * 1.5;
-
-          if (adjusted < 3600) {
-            return `${Math.round(adjusted / 60)} phút`;
-          } else {
-            const hours = Math.floor(adjusted / 3600);
-            const minutes = Math.round((adjusted % 3600) / 60);
-            return `${hours} giờ ${minutes} phút`;
-          }
+          if (adjusted < 3600) return `${Math.round(adjusted / 60)} phút`;
+          const hours = Math.floor(adjusted / 3600);
+          const minutes = Math.round((adjusted % 3600) / 60);
+          return `${hours} giờ ${minutes} phút`;
         })()}
       </p>
 
-      {/* <button className="w-full py-2 mt-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition">
-        
-      </button> */}
       <RequestRidePopover
         id={trip.id}
         buttonText={
@@ -160,6 +147,7 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
           </span>
         }
       />
+
       <div className="h-[500px] w-full">
         <MapContainer
           center={start}
@@ -177,7 +165,7 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
             <Popup>Điểm đến: {trip.endAddress}</Popup>
           </Marker>
           <Polyline positions={polyline} color="blue" />
-          <FitBounds />
+          <FitBounds polyline={polyline} />
         </MapContainer>
       </div>
     </div>

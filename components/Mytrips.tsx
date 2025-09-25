@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, ChevronUp, User } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import {
   acceptPassenger,
   myCreate,
@@ -9,31 +9,14 @@ import {
   rejectPassenger,
 } from "@/api/apiUser";
 import { Tag } from "antd";
+import { Trip } from "@/hooks/interface";
 
 // Interface theo API
-export interface Participant {
-  id: number;
-  userId: number;
-  userName: string;
-  avatar: string;
-  note: string;
-  status: number; // 0=pending, 1=accepted, 2=rejected
-}
-
-export interface Trip {
-  rideId: number;
-  startAddress: string;
-  endAddress: string;
-  status: number;
-  capacity: number;
-  occupied: number;
-  participants: Participant[];
-}
 
 export default function MyTripsPage() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [openTrip, setOpenTrip] = useState<number | null>(null);
-  const [outstanding, setOutstanding] = useState<any>(null);
+  const [outstanding, setOutstanding] = useState<number[]>([]);
 
   useEffect(() => {
     const fetchTrips = async () => {

@@ -5,6 +5,8 @@ import { Star } from "lucide-react";
 import { feedBack } from "@/api/apiUser";
 import Loading from "@/components/Loading";
 import { useNotify } from "@/hooks/useNotify";
+import { AxiosErrorResponse } from "@/hooks/interface";
+import Image from "next/image";
 
 export default function FeedbackForm() {
   const [feedback, setFeedback] = useState("");
@@ -28,11 +30,12 @@ export default function FeedbackForm() {
         setFeedback("");
         setRating(5);
       }
-    } catch (error: any) {
-      if (error) {
-        notifyError("", error?.response?.data?.message);
+    } catch (error: unknown) {
+      const axiosError = error as AxiosErrorResponse;
+      if (axiosError?.response?.data?.message) {
+        notifyError("", axiosError.response.data.message);
       } else {
-        notifyError("", "Tạm thời có lỗi hãy quay lại sau");
+        notifyError("", "Tạm thời có lỗi, hãy quay lại sau");
       }
     } finally {
       setLoading(false);
@@ -44,12 +47,13 @@ export default function FeedbackForm() {
       {contextHolder}
       {loading && <Loading />}
       {/* Xe trái */}
-      <img
+      <Image
         src="/car.png"
         alt="Xe trái"
-        className="absolute -top-8 -left-8 h-28 w-28 z-20"
+        width={112} // h-28 = 7rem = 112px
+        height={112}
+        className="absolute -top-8 -left-8 z-20"
       />
-
       <form
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded-2xl shadow-md flex flex-col gap-4 relative z-10"

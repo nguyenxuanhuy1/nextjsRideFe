@@ -7,8 +7,10 @@ import "leaflet/dist/leaflet.css";
 import { useNotify } from "@/hooks/useNotify";
 import { createTrip } from "@/api/apiUser";
 import { useCurrentLocation } from "@/hooks/useCurrentLocation";
-import Loading from "./Loading";
 import { ENV } from "@/api/urlApi";
+import Loading from "./Loading";
+import * as Leaflet from "leaflet";
+import { CreateTripPayload, Suggestion } from "@/hooks/interface";
 
 function useDebounce(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -48,8 +50,8 @@ export default function RoutePicker() {
   const [startAddress, setStartAddress] = useState("");
   const [endAddress, setEndAddress] = useState("");
 
-  const [startSuggestions, setStartSuggestions] = useState<any[]>([]);
-  const [endSuggestions, setEndSuggestions] = useState<any[]>([]);
+  const [startSuggestions, setStartSuggestions] = useState<Suggestion[]>([]);
+  const [endSuggestions, setEndSuggestions] = useState<Suggestion[]>([]);
 
   const debouncedStart = useDebounce(startInput, 150);
   const debouncedEnd = useDebounce(endInput, 150);
@@ -61,8 +63,8 @@ export default function RoutePicker() {
   const { notifyError, notifySuccess, contextHolder } = useNotify();
 
   const { position, address } = useCurrentLocation();
-  const [loading, setLoading] = useState(true);
-  const [L, setL] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [L, setL] = useState<typeof Leaflet | null>(null);
   const [isSelectingStart, setIsSelectingStart] = useState(false);
   const [isSelectingEnd, setIsSelectingEnd] = useState(false);
 
@@ -122,7 +124,7 @@ export default function RoutePicker() {
       : setEndSuggestions([]);
   }, [debouncedEnd]);
 
-  const handleSelect = (item: any, type: "start" | "end") => {
+  const handleSelect = (item: Suggestion, type: "start" | "end") => {
     const latlng: [number, number] = [
       parseFloat(item.lat),
       parseFloat(item.lon),
@@ -160,7 +162,7 @@ export default function RoutePicker() {
       notifyError("", "Bạn phải nhập số chỗ ngồi hợp lệ");
       return;
     }
-    const payload = {
+    const payload: CreateTripPayload = {
       startLat: start[0],
       startLng: start[1],
       endLat: end[0],
@@ -186,7 +188,7 @@ export default function RoutePicker() {
         setCarSeats(1);
         setVehicleType("motorbike");
       }
-    } catch (err: any) {
+    } catch {
       notifyError("", "Vui lòng thử lại sau");
     } finally {
       setLoading(false);
@@ -196,6 +198,7 @@ export default function RoutePicker() {
   return (
     <div className="flex flex-col md:flex-row h-screen">
       {contextHolder}
+      {loading && <Loading />}
       <div className="md:w-80 w-full md:p-6 md:pb-6 pb-4 bg-gray-50">
         <h3 className="text-lg font-semibold mb-4">
           Chọn Điểm xuất phát / Điểm đến

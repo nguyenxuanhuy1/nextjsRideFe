@@ -1,10 +1,12 @@
 "use client";
 import { viewFeedbback } from "@/api/apiUser";
+import { CommentFb } from "@/hooks/interface";
 import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function Testimonials() {
-  const [viewFb, setViewFb] = useState<any>();
+  const [viewFb, setViewFb] = useState<CommentFb[]>([]);
+
   useEffect(() => {
     const fetchViewfeedback = async () => {
       try {
@@ -31,7 +33,7 @@ export default function Testimonials() {
         </p>
 
         <div className="mt-10 grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {viewFb?.map((fb: any) => (
+          {viewFb?.map((fb: CommentFb) => (
             <div
               key={fb.id}
               className="bg-gray-50 p-6 rounded-lg shadow flex flex-col"

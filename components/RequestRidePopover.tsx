@@ -5,6 +5,7 @@ import { Car } from "lucide-react";
 import { createPortal } from "react-dom";
 import { joinTrip } from "@/api/apiUser";
 import { useNotify } from "@/hooks/useNotify";
+import { AxiosErrorResponse } from "@/hooks/interface";
 
 interface RequestRidePopoverProps {
   id: number;
@@ -60,11 +61,12 @@ export function RequestRidePopover({
         if (onSuccess) onSuccess();
         notifySuccess("Gửi yêu cầu thành công!");
       }
-    } catch (err: any) {
-      if (err) {
-        notifyError(err.response.data.message);
+    } catch (error: unknown) {
+      const axiosError = error as AxiosErrorResponse;
+      if (axiosError?.response?.data?.message) {
+        notifyError("", axiosError.response.data.message);
       } else {
-        notifyError("Gửi thất bại!");
+        notifyError("", "Tạm thời có lỗi, hãy quay lại sau");
       }
     } finally {
       setLoading(false);

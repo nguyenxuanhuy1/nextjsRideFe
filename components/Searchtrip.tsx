@@ -11,24 +11,14 @@ import { Car, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { RequestRidePopover } from "./RequestRidePopover";
 import { ENV } from "@/api/urlApi";
-
-interface Trip {
-  id: number;
-  startAddress: string;
-  endAddress: string;
-  distance: number;
-  duration: number;
-  capacity: number;
-  status: 0 | 1 | 2 | 3 | 4;
-  startTime: string;
-}
+import { Suggestion, Trip } from "@/hooks/interface";
 
 export default function SearchTripPage() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [startInput, setStartInput] = useState("");
   const [endInput, setEndInput] = useState("");
-  const [startSuggestions, setStartSuggestions] = useState<any[]>([]);
-  const [endSuggestions, setEndSuggestions] = useState<any[]>([]);
+  const [startSuggestions, setStartSuggestions] = useState<Suggestion[]>([]);
+  const [endSuggestions, setEndSuggestions] = useState<Suggestion[]>([]);
   const [start, setStart] = useState<[number, number] | null>(null);
   const [end, setEnd] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -62,7 +52,7 @@ export default function SearchTripPage() {
     []
   );
 
-  const handleSelect = (item: any, type: "start" | "end") => {
+  const handleSelect = (item: Suggestion, type: "start" | "end") => {
     const latlng: [number, number] = [
       parseFloat(item.lat),
       parseFloat(item.lon),
@@ -116,7 +106,7 @@ export default function SearchTripPage() {
     {
       title: "Hành trình",
       key: "route",
-      render: (_: any, record: Trip) => (
+      render: (_: unknown, record: Trip) => (
         <Tooltip title={`${record.startAddress} → ${record.endAddress}`}>
           <div className="flex items-center gap-1 max-w-[380px]">
             {/* Điểm đi */}

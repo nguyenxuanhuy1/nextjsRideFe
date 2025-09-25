@@ -6,15 +6,17 @@ import { Bell, Car, LogOut, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { notification } from "@/api/apiUser";
 import { ENV } from "@/api/urlApi";
+import { User } from "@/hooks/interface";
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const [userInfo, setUserInfo] = useState<any | null>(null);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [totalNoti, setTotalNoti] = useState<any>(0);
+  const [totalNoti, setTotalNoti] = useState<number>(0);
 
   useEffect(() => {
     const fetchNotification = async () => {
@@ -76,7 +78,7 @@ export default function Navbar() {
     setMounted(true);
     checkLogin();
 
-    const handleUserLogin = (event: any) => {
+    const handleUserLogin = (event: CustomEvent<string>) => {
       const userInfoString = event?.detail || localStorage.getItem("userInfo");
       if (userInfoString) {
         try {
@@ -88,8 +90,10 @@ export default function Navbar() {
       }
     };
 
-    window.addEventListener("userLogin", handleUserLogin);
-    return () => window.removeEventListener("userLogin", handleUserLogin);
+    window.addEventListener("userLogin", handleUserLogin as EventListener);
+    return () => {
+      window.removeEventListener("userLogin", handleUserLogin as EventListener);
+    };
   }, []);
 
   const handleLogin = () => {
