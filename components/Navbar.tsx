@@ -7,24 +7,49 @@ import { useState, useEffect } from "react";
 import { notification } from "@/api/apiUser";
 import { ENV } from "@/api/urlApi";
 import { User } from "@/hooks/interface";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
 
   const [userInfo, setUserInfo] = useState<User | null>(null);
-
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [totalNoti, setTotalNoti] = useState<number>(0);
+
+  const navItems = [
+    {
+      href: "/",
+      label: "Trang chủ",
+      description: "Đây là màn hình chính của trang chủ. hãy đóng góp ý",
+    },
+    {
+      href: "/search-trip",
+      label: "Tìm chuyến",
+      description:
+        "Chức năng tìm kiếm chuyến đi giúp bạn tìm kiếm chuyến đi cùng với lộ trình của bạn",
+    },
+    {
+      href: "/create-trip",
+      label: "Tạo chuyến",
+      description:
+        "Dùng để đăng chuyến mới nếu bạn có 1 chuyến đi muốn chia sẻ và có người đồng hành cảm ơn bạn.",
+    },
+    {
+      href: "/feedback",
+      label: "Gửi phản hồi",
+      description:
+        "Gửi phản hồi, góp ý nếu bạn thấy giao diện chỗ nào xấu chúng tôi sẽ ghi nhận ý kiến của bạn",
+    },
+  ];
 
   useEffect(() => {
     const fetchNotification = async () => {
       try {
         const token = localStorage.getItem("accessToken");
-        if (!token) {
-          return;
-        }
+        if (!token) return;
         const res = await notification();
         if (res.status === 200) {
           setTotalNoti(res.data.totalPending);
@@ -34,10 +59,8 @@ export default function Navbar() {
       }
     };
 
-    // Lần đầu load
     fetchNotification();
 
-    // Lắng nghe custom event
     const handleUpdate = () => {
       fetchNotification();
     };
@@ -50,13 +73,6 @@ export default function Navbar() {
       window.removeEventListener("userLogin", fetchNotification);
     };
   }, []);
-
-  const navItems = [
-    { href: "/", label: "Trang chủ" },
-    { href: "/search-trip", label: "Tìm chuyến" },
-    { href: "/create-trip", label: "Tạo chuyến" },
-    { href: "/feedback", label: "Gửi phàn nàn" },
-  ];
 
   const checkLogin = () => {
     const token = localStorage.getItem("accessToken");
@@ -110,6 +126,25 @@ export default function Navbar() {
     checkLogin();
   }, [pathname]);
 
+  const startTour = () => {
+    const tour = driver({
+      showProgress: true,
+      showButtons: ["next", "previous", "close"],
+      nextBtnText: "Tiếp",
+      prevBtnText: "Quay lại",
+      doneBtnText: "Hoàn tất",
+      steps: navItems.map((item, index) => ({
+        element: `#nav-item-${index}`,
+        popover: {
+          title: item.label,
+          description: item.description,
+        },
+      })),
+    });
+
+    tour.drive();
+  };
+
   if (!mounted) {
     return (
       <nav className="bg-white shadow-sm h-16">
@@ -140,9 +175,10 @@ export default function Navbar() {
 
           {/* Menu desktop */}
           <div className="hidden sm:flex sm:items-center sm:space-x-8">
-            {navItems.map((item) => (
+            {navItems.map((item, index) => (
               <Link
                 key={item.href}
+                id={`nav-item-${index}`} // 👈 Thêm id cho driver.js
                 href={item.href}
                 className={`font-medium ${
                   pathname === item.href
@@ -155,8 +191,14 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Right side */}
           <div className="flex items-center space-x-4">
+            <div
+              onClick={startTour}
+              className="hidden sm:block  px-3 py-1 rounded-md "
+            >
+              Hướng dẫn
+            </div>
+
             {userInfo && (
               <div
                 className="relative cursor-pointer"
@@ -220,9 +262,10 @@ export default function Navbar() {
         {/* Mobile menu */}
         {menuOpen && (
           <div className="sm:hidden mt-2 space-y-2">
-            {navItems.map((item) => (
+            {navItems.map((item, index) => (
               <Link
                 key={item.href}
+                id={`nav-item-mobile-${index}`}
                 href={item.href}
                 className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
                 onClick={() => setMenuOpen(false)}

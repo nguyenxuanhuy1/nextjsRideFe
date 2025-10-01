@@ -11,7 +11,7 @@ export default function CTA() {
         <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
           <div className="inline-flex rounded-md shadow">
             <a
-              href="#"
+              href="/search-trip"
               className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-emerald-600 bg-white hover:bg-emerald-50"
             >
               Tìm chuyến
@@ -19,7 +19,7 @@ export default function CTA() {
           </div>
           <div className="ml-3 inline-flex rounded-md shadow">
             <a
-              href="#"
+              href="/create-trip"
               className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-emerald-500 hover:bg-emerald-400"
             >
               Tạo chuyến
