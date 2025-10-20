@@ -238,7 +238,12 @@ export default function SearchTripPage() {
 
         <button
           onClick={() => handleSearch(1, pageSize)}
-          className="w-full py-2 bg-emerald-500 text-white rounded"
+          disabled={!startInput || !endInput}
+          className={`w-full py-2 rounded text-white ${
+            !startInput || !endInput
+              ? "bg-gray-300 cursor-not-allowed"
+              : "bg-emerald-500 hover:bg-emerald-600"
+          }`}
         >
           Tìm kiếm
         </button>

@@ -349,7 +349,12 @@ export default function RoutePicker() {
 
         <button
           onClick={handleSubmit}
-          className="w-full py-2 mt-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition"
+          // className="w-full py-2 mt-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition"
+          className={`w-full py-2 rounded text-white ${
+            !startInput || !endInput
+              ? "bg-gray-300 cursor-not-allowed"
+              : "bg-emerald-500 hover:bg-emerald-600"
+          }`}
         >
           Tạo chuyến đi
         </button>
