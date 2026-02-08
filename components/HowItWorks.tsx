@@ -13,40 +13,47 @@ export default function HowItWorks() {
           </p>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-10 sm:grid-cols-3">
-          <div className="text-center bg-white p-6 rounded-2xl shadow-md hover:shadow-lg transition">
-            <Search className="mx-auto h-12 w-12 text-emerald-500" />
-            <h3 className="mt-4 text-lg font-medium text-gray-900 flex items-center gap-2 justify-center">
-              Tìm chuyến
-              <ArrowRight className="h-5 w-5 text-emerald-500 rotate-90 md:rotate-0" />
-            </h3>
-
-            <p className="mt-2 text-base text-gray-500">
-              Tìm kiếm chuyến xe phù hợp với lộ trình và thời gian của bạn.
-            </p>
-          </div>
-
-          <div className="text-center bg-white p-6 rounded-2xl shadow-md hover:shadow-lg transition">
-            <Car className="mx-auto h-12 w-12 text-emerald-500" />
-            <h3 className="mt-4 text-lg font-medium text-gray-900 flex items-center gap-2 justify-center">
-              Đặt chỗ{" "}
-              <ArrowRight className="h-5 w-5 text-emerald-500 rotate-90 md:rotate-0" />
-            </h3>
-            <p className="mt-2 text-base text-gray-500">
-              Đặt chỗ nhanh chóng, an toàn, minh bạch chi phí miễn phí hoặc có
-              thể chia sẻ tiền xăng xe.
-            </p>
-          </div>
-
-          <div className="text-center bg-white p-6 rounded-2xl shadow-md hover:shadow-lg transition">
-            <Handshake className="mx-auto h-12 w-12 text-emerald-500" />
-            <h3 className="mt-4 text-lg font-medium text-gray-900 flex items-center gap-2 justify-center">
-              Đi cùng nhau <CheckCircle className="h-6 w-6 text-emerald-500" />
-            </h3>
-            <p className="mt-2 text-base text-gray-500">
-              Gặp gỡ, đi chung và tận hưởng chuyến đi tiết kiệm, thân thiện.
-            </p>
-          </div>
+        <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3">
+          {[
+            {
+              icon: Search,
+              title: "Tìm chuyến",
+              desc: "Tìm kiếm các chuyến xe phù hợp với lộ trình và thời gian của bạn chỉ trong vài giây.",
+              step: "01",
+            },
+            {
+              icon: Car,
+              title: "Đặt chỗ",
+              desc: "Đặt chỗ nhanh chóng và an toàn. Bạn có thể chọn chuyến miễn phí hoặc chia sẻ chi phí.",
+              step: "02",
+            },
+            {
+              icon: Handshake,
+              title: "Vivi vu cùng nhau",
+              desc: "Gặp gỡ, đi chung và tận hưởng hành trình tiết kiệm, thân thiện và an toàn.",
+              step: "03",
+            },
+          ].map((item, idx) => (
+            <div 
+              key={idx} 
+              className="group relative bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 hover:-translate-y-2 overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 p-4 text-4xl font-black text-emerald-50/50 group-hover:text-emerald-100 transition-colors">
+                {item.step}
+              </div>
+              <div className="relative z-10">
+                <div className="inline-flex items-center justify-center p-3 bg-emerald-50 rounded-2xl group-hover:bg-emerald-600 transition-colors duration-300">
+                  <item.icon className="h-8 w-8 text-emerald-600 group-hover:text-white" />
+                </div>
+                <h3 className="mt-6 text-xl font-bold text-gray-900">
+                  {item.title}
+                </h3>
+                <p className="mt-4 text-gray-600 leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

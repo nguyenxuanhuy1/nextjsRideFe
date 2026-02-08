@@ -192,12 +192,13 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <div
+            <button
               onClick={startTour}
-              className="hidden sm:block  px-3 py-1 rounded-md "
+              className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-full transition-colors"
             >
+              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
               Hướng dẫn
-            </div>
+            </button>
 
             {userInfo && (
               <div

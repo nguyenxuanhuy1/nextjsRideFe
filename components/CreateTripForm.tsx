@@ -23,15 +23,15 @@ function useDebounce(value: string, delay: number) {
 
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
-  { ssr: false }
+  { ssr: false },
 );
 const TileLayer = dynamic(
   () => import("react-leaflet").then((mod) => mod.TileLayer),
-  { ssr: false }
+  { ssr: false },
 );
 const Marker = dynamic(
   () => import("react-leaflet").then((mod) => mod.Marker),
-  { ssr: false }
+  { ssr: false },
 );
 const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
   ssr: false,
@@ -94,7 +94,7 @@ export default function RoutePicker() {
     if (!query) return;
     try {
       const res = await axios.get(
-        `${ENV.MAP_URL}/search?format=json&q=${encodeURIComponent(query)}`
+        `${ENV.MAP_URL}/search?format=json&q=${encodeURIComponent(query)}`,
       );
       type === "start"
         ? setStartSuggestions(res.data)
@@ -244,7 +244,7 @@ export default function RoutePicker() {
               } else {
                 notifyError(
                   "",
-                  "Chưa thể lấy vị trí hiện tại. Vui lòng thử lại hoặc cấp quyền định vị"
+                  "Chưa thể lấy vị trí hiện tại. Vui lòng thử lại hoặc cấp quyền định vị",
                 );
               }
             }}
@@ -327,7 +327,8 @@ export default function RoutePicker() {
               className="flex-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
               onChange={(e) =>
                 setStartTime(
-                  (prev) => `${e.target.value}T${prev.split("T")[1] || "00:00"}`
+                  (prev) =>
+                    `${e.target.value}T${prev.split("T")[1] || "00:00"}`,
                 )
               }
             />
@@ -340,7 +341,7 @@ export default function RoutePicker() {
               className="w-32 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
               onChange={(e) =>
                 setStartTime(
-                  (prev) => `${prev.split("T")[0]}T${e.target.value}`
+                  (prev) => `${prev.split("T")[0]}T${e.target.value}`,
                 )
               }
             />
