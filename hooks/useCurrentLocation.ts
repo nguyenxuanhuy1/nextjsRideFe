@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { ENV } from "@/api/urlApi";
 
 export function useCurrentLocation() {
   const [position, setPosition] = useState<[number, number] | null>(null);
@@ -26,7 +27,7 @@ export function useCurrentLocation() {
 
         try {
           const res = await axios.get(
-            `http://localhost:8888/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+            `${ENV.MAP_URL}/reverse?format=json&lat=${latitude}&lon=${longitude}`,
           );
 
           if (!canceled) setAddress(res.data.display_name || fallbackAddress);
