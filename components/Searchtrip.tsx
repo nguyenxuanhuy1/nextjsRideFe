@@ -40,7 +40,7 @@ export default function SearchTripPage() {
       if (!query) return;
       try {
         const res = await axios.get(
-          `${ENV.MAP_URL}/search?format=json&q=${encodeURIComponent(query)}`
+          `${ENV.MAP_URL}/search?format=json&q=${encodeURIComponent(query)}`,
         );
         type === "start"
           ? setStartSuggestions(res.data)
@@ -48,8 +48,8 @@ export default function SearchTripPage() {
       } catch (err) {
         console.error(err);
       }
-    }, 200),
-    []
+    }, 400),
+    [],
   );
 
   const handleSelect = (item: Suggestion, type: "start" | "end") => {

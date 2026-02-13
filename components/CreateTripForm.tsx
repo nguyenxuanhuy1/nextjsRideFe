@@ -52,8 +52,8 @@ export default function RoutePicker() {
   const [endAddress, setEndAddress] = useState("");
   const [startSuggestions, setStartSuggestions] = useState<Suggestion[]>([]);
   const [endSuggestions, setEndSuggestions] = useState<Suggestion[]>([]);
-  const debouncedStart = useDebounce(startInput, 150);
-  const debouncedEnd = useDebounce(endInput, 150);
+  const debouncedStart = useDebounce(startInput, 400);
+  const debouncedEnd = useDebounce(endInput, 400);
   const [vehicleType, setVehicleType] = useState("motorbike");
   const [carSeats, setCarSeats] = useState(1);
   const [startTime, setStartTime] = useState<string>("");
