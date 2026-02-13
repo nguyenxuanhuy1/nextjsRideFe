@@ -13,22 +13,22 @@ import { Trip } from "@/hooks/interface";
 
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
-  { ssr: false }
+  { ssr: false },
 );
 const TileLayer = dynamic(
   () => import("react-leaflet").then((mod) => mod.TileLayer),
-  { ssr: false }
+  { ssr: false },
 );
 const Marker = dynamic(
   () => import("react-leaflet").then((mod) => mod.Marker),
-  { ssr: false }
+  { ssr: false },
 );
 const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
   ssr: false,
 });
 const Polyline = dynamic(
   () => import("react-leaflet").then((mod) => mod.Polyline),
-  { ssr: false }
+  { ssr: false },
 );
 
 interface FitBoundsProps {
@@ -64,8 +64,8 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
       const Leaflet = mod.default;
 
       const DefaultIcon = new Leaflet.Icon({
-        iconUrl: "/marker-icon.png",
-        iconRetinaUrl: "/marker-icon-2x.png",
+        iconUrl: "/end.png",
+        iconRetinaUrl: "/end.png",
         shadowUrl: "/marker-shadow.png",
         iconSize: [25, 41],
         iconAnchor: [12, 41],
@@ -106,7 +106,7 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
   }
 
   const polyline: [number, number][] = route.coordinates.map(
-    ([lng, lat]: [number, number]) => [lat, lng]
+    ([lng, lat]: [number, number]) => [lat, lng],
   );
   const start: [number, number] = polyline[0];
   const end: [number, number] = polyline[polyline.length - 1];

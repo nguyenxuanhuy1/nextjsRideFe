@@ -14,23 +14,67 @@ export default function Footer() {
               </span>
             </div>
             <p className="mt-4 text-gray-500 text-sm leading-relaxed max-w-xs">
-              Nền tảng giúp kết nối những người có cùng lộ trình, giúp tiết kiệm chi phí và giảm thiểu ùn tắc giao thông tại Việt Nam.
+              Nền tảng giúp kết nối những người có cùng lộ trình, giúp tiết kiệm
+              chi phí và giảm thiểu ùn tắc giao thông tại Việt Nam.
             </p>
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Khám phá</h3>
+            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">
+              Khám phá
+            </h3>
             <ul className="mt-4 space-y-2">
-              <li><Link href="/search-trip" className="text-gray-500 hover:text-emerald-600 transition-colors text-sm">Tìm kiếm chuyến đi</Link></li>
-              <li><Link href="/create-trip" className="text-gray-500 hover:text-emerald-600 transition-colors text-sm">Đăng tin chuyến đi</Link></li>
-              <li><Link href="/feedback" className="text-gray-500 hover:text-emerald-600 transition-colors text-sm">Gửi góp ý</Link></li>
+              <li>
+                <a
+                  href="https://congdongonthi.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-500 hover:text-emerald-600 transition-colors text-sm"
+                >
+                  Cộng đồng ôn thi.
+                </a>
+              </li>
+
+              <li>
+                <Link
+                  href="/create-trip"
+                  className="text-gray-500 hover:text-emerald-600 transition-colors text-sm"
+                >
+                  Đăng tin chuyến đi
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/feedback"
+                  className="text-gray-500 hover:text-emerald-600 transition-colors text-sm"
+                >
+                  Gửi góp ý
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Liên hệ</h3>
+            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">
+              Liên hệ
+            </h3>
             <div className="mt-4 flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-emerald-600 transition-colors"><Facebook size={20} /></a>
-              <a href="#" className="text-gray-400 hover:text-emerald-600 transition-colors"><Github size={20} /></a>
-              <a href="#" className="text-gray-400 hover:text-emerald-600 transition-colors"><Send size={20} /></a>
+              <a
+                href="#"
+                className="text-gray-400 hover:text-emerald-600 transition-colors"
+              >
+                <Facebook size={20} />
+              </a>
+              <a
+                href="#"
+                className="text-gray-400 hover:text-emerald-600 transition-colors"
+              >
+                <Github size={20} />
+              </a>
+              <a
+                href="#"
+                className="text-gray-400 hover:text-emerald-600 transition-colors"
+              >
+                <Send size={20} />
+              </a>
             </div>
           </div>
         </div>
@@ -39,7 +83,10 @@ export default function Footer() {
             © 2025 Chiasechuyendi. All rights reserved.
           </p>
           <p className="text-gray-400 text-sm text-center">
-            Thiết kế và phát triển bởi <span className="text-emerald-600 font-medium">Nguyễn Xuân Huy</span>
+            Thiết kế và phát triển bởi{" "}
+            <span className="text-emerald-600 font-medium">
+              Nguyễn Xuân Huy
+            </span>
           </p>
         </div>
       </div>

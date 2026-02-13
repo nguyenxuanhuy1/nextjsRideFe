@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "./globals.scss";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { FlashlightProvider } from "@/hooks/useFlashlightMode";
@@ -19,7 +19,14 @@ export const metadata: Metadata = {
   },
   description:
     "Chia sẻ chuyến xe, tiết kiệm chi phí, kết nối cộng đồng và bảo vệ môi trường.",
-  keywords: ["chia sẻ chuyến xe", "đi chung xe", "tiết kiệm chi phí", "bảo vệ môi trường", "kết nối cộng đồng", "rideshare vietnam"],
+  keywords: [
+    "chia sẻ chuyến xe",
+    "đi chung xe",
+    "tiết kiệm chi phí",
+    "bảo vệ môi trường",
+    "kết nối cộng đồng",
+    "rideshare vietnam",
+  ],
   authors: [{ name: "Chiasechuyendi Team" }],
   creator: "Chiasechuyendi Team",
   publisher: "Chiasechuyendi",
@@ -32,7 +39,8 @@ export const metadata: Metadata = {
     url: baseUrl,
     siteName: "Chiasechuyendi",
     title: "Chiasechuyendi - Kết nối chuyến xe, giảm tắc đường",
-    description: "Chia sẻ chuyến xe, tiết kiệm chi phí, kết nối cộng đồng và bảo vệ môi trường.",
+    description:
+      "Chia sẻ chuyến xe, tiết kiệm chi phí, kết nối cộng đồng và bảo vệ môi trường.",
     images: [
       {
         url: "/og-image.png",
@@ -45,7 +53,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Chiasechuyendi - Kết nối chuyến xe, giảm tắc đường",
-    description: "Chia sẻ chuyến xe, tiết kiệm chi phí, kết nối cộng đồng và bảo vệ môi trường.",
+    description:
+      "Chia sẻ chuyến xe, tiết kiệm chi phí, kết nối cộng đồng và bảo vệ môi trường.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -65,7 +74,6 @@ export const metadata: Metadata = {
     apple: "/car.png",
   },
 };
-
 
 export default function RootLayout({
   children,
@@ -93,7 +101,9 @@ export default function RootLayout({
         />
       </head>
 
-      <body className={`${inter.className} bg-gray-50 min-h-screen flex flex-col`}>
+      <body
+        className={`${inter.className} bg-gray-50 min-h-screen flex flex-col`}
+      >
         <Navbar />
         {/* <main className="flex-1">{children}</main> */}
         <FlashlightProvider>

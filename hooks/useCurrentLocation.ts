@@ -26,7 +26,7 @@ export function useCurrentLocation() {
 
         try {
           const res = await axios.get(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+            `http://localhost:8888/reverse?format=json&lat=${latitude}&lon=${longitude}`,
           );
 
           if (!canceled) setAddress(res.data.display_name || fallbackAddress);
@@ -41,7 +41,7 @@ export function useCurrentLocation() {
           setPosition(fallbackPosition);
           setAddress(fallbackAddress);
         }
-      }
+      },
     );
 
     return () => {

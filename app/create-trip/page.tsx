@@ -3,10 +3,8 @@ import CreateTripForm from "@/components/CreateTripForm";
 
 export default function CreateTripPage() {
   return (
-    <>
-      <main className="max-w-7xl mx-auto p-4 min-h-screen">
-        <CreateTripForm />
-      </main>
-    </>
+    <div className="max-w-[1480px] mx-auto w-full p-4 min-h-screen">
+      <CreateTripForm />
+    </div>
   );
 }
