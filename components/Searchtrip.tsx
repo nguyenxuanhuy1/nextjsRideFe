@@ -285,7 +285,7 @@ export default function SearchTripPage() {
               </div>
 
               {/* Nội dung chuyến */}
-              <p className="font-semibold truncate mt-2">
+              <p className="font-semibold  mt-2">
                 {trip.startAddress} → {trip.endAddress}
               </p>
               <p className="text-sm text-gray-600">

@@ -151,13 +151,11 @@ export default function TripDetailPage({ tripId }: TripDetailProps) {
       <div className="h-[500px] w-full">
         <MapContainer
           center={start}
+          attributionControl={false}
           zoom={13}
           style={{ height: "100%", width: "100%" }}
         >
-          <TileLayer
-            url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
-            attribution='&copy; <a href="https://maps.google.com">Google Maps</a>'
-          />
+          <TileLayer url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}" />
           <Marker position={start}>
             <Popup>Điểm đi: {trip.startAddress}</Popup>
           </Marker>
