@@ -10,6 +10,7 @@ import {
 } from "@/api/apiUser";
 import { Tag } from "antd";
 import { Trip } from "@/hooks/interface";
+import Image from "next/image";
 
 // Interface theo API
 
@@ -70,7 +71,7 @@ export default function MyTripsPage() {
   // Xử lý accept/reject hành khách
   const handlePassengerAction = async (
     participantId: number,
-    action: "accepted" | "rejected"
+    action: "accepted" | "rejected",
   ) => {
     try {
       if (action === "accepted") {
@@ -154,10 +155,13 @@ export default function MyTripsPage() {
                   className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-gray-50 p-3 rounded-xl"
                 >
                   <div className="flex items-center gap-3">
-                    <img
+                    <Image
                       src={p.avatar}
                       alt={p.userName}
-                      className="w-8 h-8 rounded-full object-cover"
+                      width={32}
+                      height={32}
+                      className="rounded-full object-cover"
+                      unoptimized
                     />
                     <div>
                       <p className="font-medium">{p.userName}</p>

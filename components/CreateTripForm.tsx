@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import axios from "axios";
 import "leaflet/dist/leaflet.css";
@@ -63,7 +63,7 @@ export default function RoutePicker() {
   const [L, setL] = useState<typeof Leaflet | null>(null);
   const [isSelectingStart, setIsSelectingStart] = useState(false);
   const [isSelectingEnd, setIsSelectingEnd] = useState(false);
-  const [mapKey, setMapKey] = useState(0);
+  const [mapKey] = useState(0);
 
   useEffect(() => {
     import("leaflet").then((mod) => setL(mod));

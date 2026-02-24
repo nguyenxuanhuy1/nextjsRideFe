@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Car } from "lucide-react";
 import { createPortal } from "react-dom";
 import { joinTrip } from "@/api/apiUser";
 import { useNotify } from "@/hooks/useNotify";
@@ -122,7 +121,7 @@ export function RequestRidePopover({
             {loading ? "Đang gửi..." : "Gửi"}
           </button>
         </div>,
-        document.body
+        document.body,
       )
     : null;
 

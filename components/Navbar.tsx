@@ -9,6 +9,7 @@ import { ENV } from "@/api/urlApi";
 import { User } from "@/hooks/interface";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
+import Image from "next/image";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -219,10 +220,13 @@ export default function Navbar() {
                 {/* Desktop */}
                 <div className="hidden sm:block relative group">
                   <div className="flex items-center gap-2 cursor-pointer">
-                    <img
-                      src={userInfo.avatarUrl}
-                      alt={userInfo.name}
-                      className="w-8 h-8 rounded-full object-cover"
+                    <Image
+                      src={userInfo.avatarUrl || "/default-avatar.png"}
+                      alt={userInfo.name || "avatar"}
+                      width={32}
+                      height={32}
+                      className="rounded-full object-cover"
+                      unoptimized
                     />
                     <span className="font-medium text-gray-700 hover:text-emerald-600">
                       {userInfo.name}
@@ -279,10 +283,13 @@ export default function Navbar() {
               <div className="px-4 py-2 border-t">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <img
-                      src={userInfo.avatarUrl}
-                      alt={userInfo.name}
-                      className="w-8 h-8 rounded-full object-cover"
+                    <Image
+                      src={userInfo?.avatarUrl || "/default-avatar.png"}
+                      alt={userInfo?.name || "avatar"}
+                      width={32}
+                      height={32}
+                      className="rounded-full object-cover"
+                      unoptimized
                     />
                     <span className="font-semibold truncate max-w-[150px] overflow-hidden whitespace-nowrap block">
                       {userInfo?.name}

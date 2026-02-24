@@ -183,17 +183,16 @@ export default function SearchTripPage({ initialTrips, initialTotal }: Props) {
             <Eye className="w-4 h-4" />
             Chi tiết
           </Button>
-          {record.status === 1 ||
-            (record.status === 0 && (
-              <RequestRidePopover
-                id={record?.id}
-                buttonText={
-                  <span className="flex items-center gap-1 text-emerald-500">
-                    Xin
-                  </span>
-                }
-              />
-            ))}
+          {(record.status === 1 || record.status === 0) && (
+            <RequestRidePopover
+              id={record?.id}
+              buttonText={
+                <span className="flex items-center gap-1 text-emerald-500">
+                  Xin
+                </span>
+              }
+            />
+          )}
         </div>
       ),
     },
