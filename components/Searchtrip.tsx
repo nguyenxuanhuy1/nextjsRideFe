@@ -12,19 +12,25 @@ import { useRouter } from "next/navigation";
 import { RequestRidePopover } from "./RequestRidePopover";
 import { ENV } from "@/api/urlApi";
 import { Suggestion, Trip } from "@/hooks/interface";
+import { formatDateTime } from "@/helper/formatDate";
 
-export default function SearchTripPage() {
-  const [trips, setTrips] = useState<Trip[]>([]);
+interface Props {
+  initialTrips: Trip[];
+  initialTotal: number;
+}
+
+export default function SearchTripPage({ initialTrips, initialTotal }: Props) {
+  const [trips, setTrips] = useState<Trip[]>(initialTrips);
   const [startInput, setStartInput] = useState("");
   const [endInput, setEndInput] = useState("");
   const [startSuggestions, setStartSuggestions] = useState<Suggestion[]>([]);
   const [endSuggestions, setEndSuggestions] = useState<Suggestion[]>([]);
   const [start, setStart] = useState<[number, number] | null>(null);
   const [end, setEnd] = useState<[number, number] | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState(initialTotal);
   const router = useRouter();
 
   const statusMap: Record<Trip["status"], { text: string; color: string }> = {
@@ -34,6 +40,7 @@ export default function SearchTripPage() {
     3: { text: "Đang di chuyển", color: "#eab308" },
     4: { text: "Hoàn thành", color: "#6b7280" },
   };
+
   // fetch gợi ý địa chỉ
   const fetchSuggestions = useCallback(
     debounce(async (query: string, type: "start" | "end") => {
@@ -69,7 +76,6 @@ export default function SearchTripPage() {
   };
 
   const handleSearch = async (pageNum = page, sizeNum = pageSize) => {
-    // if (!start || !end) return;
     const payload: {
       startLat: number | null;
       startLng: number | null;
@@ -98,7 +104,14 @@ export default function SearchTripPage() {
       setLoading(false);
     }
   };
+
+  // Chỉ gọi lại khi page/pageSize thay đổi (không gọi lần đầu vì đã có initialTrips)
+  const [isFirstRender, setIsFirstRender] = useState(true);
   useEffect(() => {
+    if (isFirstRender) {
+      setIsFirstRender(false);
+      return;
+    }
     handleSearch();
   }, [page, pageSize]);
 
@@ -108,25 +121,42 @@ export default function SearchTripPage() {
       key: "route",
       render: (_: unknown, record: Trip) => (
         <Tooltip title={`${record.startAddress} → ${record.endAddress}`}>
-          <div className="flex items-center gap-1 max-w-[380px]">
-            {/* Điểm đi */}
-            <span className="inline-block max-w-[190px] truncate">
+          <div className="flex items-center gap-1 max-w-[580px]">
+            <span className="inline-block max-w-[290px] truncate">
               {record.startAddress}
             </span>
-
             <span className="mx-1">→</span>
-
-            {/* Điểm đến */}
-            <span className="inline-block max-w-[190px] truncate">
+            <span className="inline-block max-w-[290px] truncate">
               {record.endAddress}
             </span>
           </div>
         </Tooltip>
       ),
     },
-    { title: "Số ghế trống", dataIndex: "capacity", key: "capacity" },
-    { title: "Quãng đường", dataIndex: "distance", key: "distance" },
-    { title: "Thời gian khởi hành", dataIndex: "startTime", key: "startTime" },
+    {
+      title: "Số ghế trống",
+      dataIndex: "capacity",
+      key: "capacity",
+      width: 150,
+    },
+    {
+      title: "Quãng đường",
+      dataIndex: "distance",
+      key: "distance",
+      width: 150,
+      render: (value: number) => {
+        if (!value) return "-";
+        const km = value / 1000;
+        return `${km.toFixed(1)} km`;
+      },
+    },
+    {
+      title: "Thời gian khởi hành",
+      dataIndex: "startTime",
+      key: "startTime",
+      width: 180,
+      render: (value: string) => formatDateTime(value),
+    },
     {
       title: "Trạng thái",
       dataIndex: "status",
@@ -135,13 +165,14 @@ export default function SearchTripPage() {
         const info = statusMap[status];
         return <Tag color={info.color}>{info.text}</Tag>;
       },
+      width: 120,
     },
-
     {
       title: "Bạn muốn",
       key: "action",
       align: "center",
       width: 200,
+      fixed: "right",
       render: (_, record) => (
         <div className="flex items-center gap-3">
           <Button
@@ -150,7 +181,7 @@ export default function SearchTripPage() {
             onClick={() => router.push(`/detail-trip/${record.id}`)}
           >
             <Eye className="w-4 h-4" />
-            Xem chi tiết
+            Chi tiết
           </Button>
           {record.status === 1 ||
             (record.status === 0 && (
@@ -158,7 +189,6 @@ export default function SearchTripPage() {
                 id={record?.id}
                 buttonText={
                   <span className="flex items-center gap-1 text-emerald-500">
-                    <Car className="w-5 h-5" />
                     Xin
                   </span>
                 }
@@ -168,16 +198,14 @@ export default function SearchTripPage() {
       ),
     },
   ];
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-[60vh]">
-        <Loading />
-      </div>
-    );
-  }
+
   return (
     <div className="p-4">
-      {loading && <Loading />}
+      {loading && (
+        <div className="flex justify-center items-center h-[60vh]">
+          <Loading />
+        </div>
+      )}
       <h1 className="text-xl font-bold mb-4">Tìm kiếm chuyến đi</h1>
 
       {/* Form tìm kiếm */}
@@ -245,7 +273,7 @@ export default function SearchTripPage() {
               : "bg-emerald-500 hover:bg-emerald-600"
           }`}
         >
-          Tìm kiếm
+          Tìm chuyến
         </button>
       </div>
 
@@ -265,7 +293,7 @@ export default function SearchTripPage() {
               setPageSize(size || 10);
             },
           }}
-          scroll={{ x: 800 }}
+          scroll={{ x: 1400 }}
         />
       </div>
 
@@ -279,17 +307,15 @@ export default function SearchTripPage() {
               key={trip.id}
               className="border rounded-lg p-4 shadow-sm bg-white relative"
             >
-              {/* Border top + chữ chèn */}
               <div className="absolute -top-3 left-4 bg-white px-2 text-sm font-bold text-emerald-600">
                 Chuyến đi
               </div>
 
-              {/* Nội dung chuyến */}
-              <p className="font-semibold  mt-2">
+              <p className="font-semibold mt-2">
                 {trip.startAddress} → {trip.endAddress}
               </p>
               <p className="text-sm text-gray-600">
-                Ngày đi - giờ đi: {new Date(trip.startTime).toLocaleString()}
+                Ngày đi - giờ đi: {formatDateTime(trip.startTime)}
               </p>
               <p className="text-sm text-gray-600">
                 Số ghế trống: {trip.capacity}
