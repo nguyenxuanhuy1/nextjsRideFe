@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: '/private/',
     },
-    sitemap: 'https://chiasechuyendi.com/sitemap.xml',
+    sitemap: 'https://chiasechuyendi.online/sitemap.xml',
   }
 }

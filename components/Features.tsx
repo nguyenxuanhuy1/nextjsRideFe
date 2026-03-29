@@ -1,50 +1,90 @@
-import { Users, DollarSign, Leaf } from "lucide-react";
+import { Users, DollarSign, Leaf, Shield, Zap, MapPin } from "lucide-react";
+
+const features = [
+  {
+    icon: Users,
+    title: "Kết nối cộng đồng",
+    desc: "Gặp gỡ những người có cùng lộ trình, mở rộng mối quan hệ và xây dựng cộng đồng văn minh.",
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    border: "border-emerald-100",
+  },
+  {
+    icon: DollarSign,
+    title: "Tiết kiệm chi phí",
+    desc: "Chia sẻ chi phí xăng xe, giảm gánh nặng tài chính cho cả tài xế lẫn hành khách.",
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+    border: "border-blue-100",
+  },
+  {
+    icon: Leaf,
+    title: "Bảo vệ môi trường",
+    desc: "Giảm lượng xe lưu thông, góp phần giảm ùn tắc và lượng khí thải trực tiếp ra môi trường.",
+    color: "text-teal-600",
+    bg: "bg-teal-50",
+    border: "border-teal-100",
+  },
+  {
+    icon: Shield,
+    title: "An toàn & tin cậy",
+    desc: "Thông tin hành khách và tài xế được xác thực, đảm bảo an toàn cho mỗi chuyến đi.",
+    color: "text-purple-600",
+    bg: "bg-purple-50",
+    border: "border-purple-100",
+  },
+  {
+    icon: Zap,
+    title: "Nhanh chóng & tiện lợi",
+    desc: "Đặt chuyến chỉ trong vài giây, nhận xác nhận ngay lập tức từ tài xế.",
+    color: "text-amber-600",
+    bg: "bg-amber-50",
+    border: "border-amber-100",
+  },
+  {
+    icon: MapPin,
+    title: "Theo dõi lộ trình",
+    desc: "Xem lịch trình và lộ trình chi tiết trên bản đồ, dễ dàng tìm điểm đón.",
+    color: "text-rose-600",
+    bg: "bg-rose-50",
+    border: "border-rose-100",
+  },
+];
 
 export default function Features() {
   return (
-    <div className="py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="lg:text-center">
-          <h2 className="text-base text-emerald-600 font-semibold tracking-wide uppercase">
-            Lợi ích
-          </h2>
-          <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            Vì sao nên chọn đi chung xe?
+    <section className="section bg-white">
+      <div className="container">
+        {/* Header */}
+        <div className="text-center mb-14">
+          <p className="section-label">Tính năng nổi bật</p>
+          <h2 className="section-title">Vì sao nên chọn Chiasechuyendi?</h2>
+          <p className="text-slate-500 mt-3 max-w-xl mx-auto">
+            Nền tảng được thiết kế để mang đến trải nghiệm đi chung xe tốt nhất cho người Việt Nam.
           </p>
         </div>
 
-        <div className="mt-16">
-          <div className="grid grid-cols-1 gap-12 sm:grid-cols-3">
-            {[
-              {
-                icon: Users,
-                title: "Kết nối cộng đồng",
-                desc: "Gặp gỡ những người có cùng lộ trình, mở rộng mối quan hệ và tạo dựng cộng đồng văn minh."
-              },
-              {
-                icon: DollarSign,
-                title: "Tiết kiệm chi phí",
-                desc: "Chia sẻ chi phí xăng xe, giúp giảm gánh nặng tài chính cho cả tài xế và hành khách."
-              },
-              {
-                icon: Leaf,
-                title: "Bảo vệ môi trường",
-                desc: "Giảm lượng xe lưu thông, góp phần giảm ùn tắc và lượng khí thải trực tiếp ra môi trường."
-              }
-            ].map((feature, idx) => (
-              <div key={idx} className="flex flex-col items-center text-center group">
-                <div className="flex items-center justify-center h-16 w-16 rounded-2xl bg-emerald-50 text-emerald-600 mb-6 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-sm">
-                  <feature.icon size={32} />
+        {/* Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {features.map((feature, idx) => {
+            const Icon = feature.icon;
+            return (
+              <div
+                key={idx}
+                className={`card-flat border ${feature.border} p-6 group hover:shadow-md transition-all duration-300 stagger-${Math.min(idx + 1, 3)}`}
+              >
+                <div
+                  className={`w-11 h-11 rounded-xl ${feature.bg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
+                >
+                  <Icon className={`w-5 h-5 ${feature.color}`} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed italic">
-                  &ldquo;{feature.desc}&rdquo;
-                </p>
+                <h3 className="font-bold text-slate-900 mb-2">{feature.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">{feature.desc}</p>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

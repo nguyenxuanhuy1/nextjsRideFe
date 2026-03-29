@@ -1,7 +1,7 @@
 "use client";
 import { viewFeedbback } from "@/api/apiUser";
 import { CommentFb } from "@/hooks/interface";
-import { Star } from "lucide-react";
+import { Star, Quote } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function Testimonials() {
@@ -11,59 +11,74 @@ export default function Testimonials() {
     const fetchViewfeedback = async () => {
       try {
         const res = await viewFeedbback();
-        if (res.status === 200) {
-          setViewFb(res.data);
-        }
+        if (res.status === 200) setViewFb(res.data);
       } catch (error) {
         console.error("Lỗi khi gọi API thông báo:", error);
       }
     };
-
     fetchViewfeedback();
   }, []);
 
-  return (
-    <div className="py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-base text-emerald-600 font-semibold tracking-wide uppercase text-center">
-          Trải nghiệm
-        </h2>
-        <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl text-center">
-          Người dùng nói gì?
-        </p>
+  if (viewFb.length === 0) return null;
 
-        <div className="mt-12 grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {viewFb?.map((fb: CommentFb) => (
+  return (
+    <section className="section" style={{ background: "var(--surface-2)" }}>
+      <div className="container">
+        <div className="text-center mb-14">
+          <p className="section-label">Cộng đồng</p>
+          <h2 className="section-title">Người dùng nói gì?</h2>
+          <p className="text-slate-500 mt-3">Những chia sẻ thực tế từ cộng đồng Chiasechuyendi</p>
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {viewFb.map((fb: CommentFb, idx) => (
             <div
               key={fb.id}
-              className="relative bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300"
+              className={`card p-6 animate-fade-in stagger-${Math.min(idx + 1, 3)}`}
             >
-              <div className="absolute -top-4 left-8 p-2 bg-emerald-600 rounded-lg shadow-lg">
-                <Star className="text-white fill-white" size={20} />
+              {/* Quote icon */}
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center mb-4">
+                <Quote className="w-4 h-4 text-emerald-600" />
               </div>
-              <div className="mt-4">
-                <p className="text-gray-700 italic leading-relaxed text-lg">
-                  “{fb.comment}”
-                </p>
-                <div className="mt-6 pt-6 border-t border-gray-50 flex items-center justify-between">
-                  <div className="font-bold text-gray-900">
-                    {fb.userName}
+
+              {/* Stars */}
+              <div className="flex gap-0.5 mb-3">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    size={14}
+                    className={i < fb.rating ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200"}
+                  />
+                ))}
+              </div>
+
+              {/* Comment */}
+              <p className="text-slate-600 text-sm leading-relaxed italic flex-1">
+                "{fb.comment}"
+              </p>
+
+              {/* User */}
+              <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-xs font-bold">
+                    {fb.userName.charAt(0).toUpperCase()}
                   </div>
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={14}
-                        className={i < fb.rating ? "fill-yellow-400" : "text-gray-200 fill-gray-200"}
-                      />
-                    ))}
+                  <div>
+                    <p className="font-semibold text-slate-800 text-sm">{fb.userName}</p>
+                    <p className="text-xs text-slate-400">
+                      {new Date(fb.createdAt).toLocaleDateString("vi-VN")}
+                    </p>
                   </div>
+                </div>
+                <div className="flex items-center gap-1 text-xs font-bold text-amber-500">
+                  <Star size={12} className="fill-amber-400" />
+                  {fb.rating}/5
                 </div>
               </div>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

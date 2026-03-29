@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Car } from "lucide-react";
-import { createPortal } from "react-dom";
+import { Car, X, Send } from "lucide-react";
 import { joinTrip } from "@/api/apiUser";
 import { useNotify } from "@/hooks/useNotify";
 import { AxiosErrorResponse } from "@/hooks/interface";
@@ -21,35 +20,26 @@ export function RequestRidePopover({
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
-  const [position, setPosition] = useState<{ top: number; left: number }>({
-    top: 0,
-    left: 0,
-  });
   const { notifyError, notifySuccess, contextHolder } = useNotify();
 
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const popoverRef = useRef<HTMLDivElement>(null);
-
-  // Đóng popover khi click ra ngoài
+  // Close on ESC
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        popoverRef.current &&
-        !popoverRef.current.contains(event.target as Node) &&
-        buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    if (open) document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [open]);
 
-  // Gửi yêu cầu xin đi nhờ
+  // Prevent body scroll when modal open
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
   const hitchhike = async () => {
     if (!note.trim()) {
-      notifyError("", "Vui lòng nhập nội dung!");
+      notifyError("", "Vui lòng nhập thông tin liên hệ!");
       return;
     }
     setLoading(true);
@@ -59,84 +49,100 @@ export function RequestRidePopover({
         setNote("");
         setOpen(false);
         if (onSuccess) onSuccess();
-        notifySuccess("Gửi yêu cầu thành công!");
+        notifySuccess("Gửi yêu cầu thành công! Chờ tài xế xác nhận.");
       }
     } catch (error: unknown) {
       const axiosError = error as AxiosErrorResponse;
-      if (axiosError?.response?.data?.message) {
-        notifyError("", axiosError.response.data.message);
-      } else {
-        notifyError("", "Tạm thời có lỗi, hãy quay lại sau");
-      }
+      notifyError(
+        "",
+        axiosError?.response?.data?.message || "Tạm thời có lỗi, hãy quay lại sau"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // Cập nhật vị trí popover
-  const togglePopover = () => {
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      const popoverWidth = 256;
-      const popoverHeight = 150;
-
-      let top = rect.bottom + 8;
-      let left = rect.left + rect.width / 2 - popoverWidth / 2;
-      if (top + popoverHeight > window.innerHeight) {
-        top = rect.top - 8 - popoverHeight;
-      }
-
-      left = Math.max(8, Math.min(left, window.innerWidth - popoverWidth - 8));
-      setPosition({ top, left });
-    }
-    setOpen((prev) => !prev);
-  };
-
-  const popover = open
-    ? createPortal(
-        <div
-          ref={popoverRef}
-          style={{
-            position: "fixed",
-            top: position.top,
-            left: position.left,
-            width: 256,
-            zIndex: 9999,
-          }}
-          className="bg-white border rounded shadow-lg p-3"
-        >
-          <textarea
-            rows={4}
-            className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-emerald-300"
-            placeholder="Nhập thông liên hệ với bạn... VD: Số điện thoại hay zalo..."
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-          />
-          <button
-            onClick={hitchhike}
-            disabled={loading}
-            className={`mt-2 w-full px-3 py-2 text-white rounded ${
-              loading ? "bg-gray-400" : "bg-emerald-500 hover:bg-emerald-600"
-            }`}
-          >
-            {loading ? "Đang gửi..." : "Gửi"}
-          </button>
-        </div>,
-        document.body
-      )
-    : null;
-
   return (
     <>
       {contextHolder}
+
+      {/* Trigger Button */}
       <button
-        ref={buttonRef}
-        onClick={togglePopover}
-        className=" h-9 px-3 text-emerald-500 flex items-center gap-1 border border-emerald-500 rounded hover:bg-emerald-50 transition"
+        onClick={() => setOpen(true)}
+        className="btn btn-primary btn-sm"
       >
-        {buttonText}
+        <Car className="w-4 h-4" />
+        {buttonText ?? "Xin đi nhờ"}
       </button>
-      {popover}
+
+      {/* Modal */}
+      {open && (
+        <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}>
+          <div className="modal-box">
+            {/* Header */}
+            <div className="flex items-center justify-between p-5 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center">
+                  <Car className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <h2 className="font-bold text-slate-900 text-base">Xin đi nhờ</h2>
+                  <p className="text-xs text-slate-500">Tài xế sẽ liên hệ với bạn</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setOpen(false)}
+                className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-5">
+              <label className="label mb-2">Thông tin liên hệ của bạn</label>
+              <textarea
+                rows={4}
+                className="input resize-none"
+                placeholder="Nhập số điện thoại, Zalo hoặc lời nhắn cho tài xế..."
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                autoFocus
+              />
+              <p className="text-xs text-slate-400 mt-1.5">
+                💡 Ví dụ: "SĐT: 0912345678 - Zalo cùng số"
+              </p>
+            </div>
+
+            {/* Footer */}
+            <div className="flex gap-3 px-5 pb-5">
+              <button
+                onClick={() => setOpen(false)}
+                className="btn btn-ghost flex-1 border border-slate-200"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={hitchhike}
+                disabled={loading || !note.trim()}
+                className="btn btn-primary flex-1"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Đang gửi...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Gửi yêu cầu
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
