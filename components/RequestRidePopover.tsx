@@ -34,7 +34,9 @@ export function RequestRidePopover({
   // Prevent body scroll when modal open
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   const hitchhike = async () => {
@@ -55,7 +57,8 @@ export function RequestRidePopover({
       const axiosError = error as AxiosErrorResponse;
       notifyError(
         "",
-        axiosError?.response?.data?.message || "Tạm thời có lỗi, hãy quay lại sau"
+        axiosError?.response?.data?.message ||
+          "Tạm thời có lỗi, hãy quay lại sau",
       );
     } finally {
       setLoading(false);
@@ -67,17 +70,19 @@ export function RequestRidePopover({
       {contextHolder}
 
       {/* Trigger Button */}
-      <button
-        onClick={() => setOpen(true)}
-        className="btn btn-primary btn-sm"
-      >
+      <button onClick={() => setOpen(true)} className="btn btn-primary btn-sm">
         <Car className="w-4 h-4" />
         {buttonText ?? "Xin đi nhờ"}
       </button>
 
       {/* Modal */}
       {open && (
-        <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}>
+        <div
+          className="modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setOpen(false);
+          }}
+        >
           <div className="modal-box">
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
@@ -86,8 +91,12 @@ export function RequestRidePopover({
                   <Car className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-slate-900 text-base">Xin đi nhờ</h2>
-                  <p className="text-xs text-slate-500">Tài xế sẽ liên hệ với bạn</p>
+                  <h2 className="font-bold text-slate-900 text-base">
+                    Xin đi nhờ
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    Tài xế sẽ liên hệ với bạn
+                  </p>
                 </div>
               </div>
               <button
@@ -110,7 +119,7 @@ export function RequestRidePopover({
                 autoFocus
               />
               <p className="text-xs text-slate-400 mt-1.5">
-                💡 Ví dụ: "SĐT: 0912345678 - Zalo cùng số"
+                💡 Ví dụ: SĐT: 0912345678 - Zalo cùng số
               </p>
             </div>
 

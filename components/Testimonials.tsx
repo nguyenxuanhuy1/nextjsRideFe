@@ -27,7 +27,9 @@ export default function Testimonials() {
         <div className="text-center mb-14">
           <p className="section-label">Cộng đồng</p>
           <h2 className="section-title">Người dùng nói gì?</h2>
-          <p className="text-slate-500 mt-3">Những chia sẻ thực tế từ cộng đồng Chiasechuyendi</p>
+          <p className="text-slate-500 mt-3">
+            Những chia sẻ thực tế từ cộng đồng Chiasechuyendi
+          </p>
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -47,14 +49,18 @@ export default function Testimonials() {
                   <Star
                     key={i}
                     size={14}
-                    className={i < fb.rating ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200"}
+                    className={
+                      i < fb.rating
+                        ? "text-amber-400 fill-amber-400"
+                        : "text-slate-200 fill-slate-200"
+                    }
                   />
                 ))}
               </div>
 
               {/* Comment */}
               <p className="text-slate-600 text-sm leading-relaxed italic flex-1">
-                "{fb.comment}"
+                {fb.comment}
               </p>
 
               {/* User */}
@@ -64,7 +70,9 @@ export default function Testimonials() {
                     {fb.userName.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p className="font-semibold text-slate-800 text-sm">{fb.userName}</p>
+                    <p className="font-semibold text-slate-800 text-sm">
+                      {fb.userName}
+                    </p>
                     <p className="text-xs text-slate-400">
                       {new Date(fb.createdAt).toLocaleDateString("vi-VN")}
                     </p>
